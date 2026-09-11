@@ -1,0 +1,44 @@
+server:
+  port: ${SERVER_PORT:18080}
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: cliente-ms
+              uri: lb://cliente-ms
+              predicates:
+                - Path=/api/v1/clientes/**
+            - id: servicio-legal-ms
+              uri: lb://servicio-legal-ms
+              predicates:
+                - Path=/api/v1/servicios/**
+            - id: orden-legal-ms
+              uri: lb://orden-legal-ms
+              predicates:
+                - Path=/api/v1/ordenes/**
+            - id: pago-ms
+              uri: lb://pago-ms
+              predicates:
+                - Path=/api/v1/pagos/**
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:18761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${EUREKA_INSTANCE_ID:${spring.application.name}:${server.port}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always

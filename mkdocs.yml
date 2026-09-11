@@ -1,0 +1,22 @@
+site_name: Illari Legal - Unidad I Sistemas Distribuidos
+site_description: Evidencias y producto acumulativo de las sesiones S1 a S5
+theme:
+  name: material
+  language: es
+nav:
+  - Inicio: index.md
+  - Producto Unidad I: u1-producto.md
+  - Guía de ejecución: guia-ejecucion.md
+  - Demostración S5: demo-s5.md
+  - Observabilidad: observabilidad.md
+  - Brief técnico: brief-tecnico.md
+  - Evidencias: evidencias/README.md
+markdown_extensions:
+  - tables
+  - fenced_code
+  - attr_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

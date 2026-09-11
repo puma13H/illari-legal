@@ -1,0 +1,210 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: illari-u1-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: illari_cliente
+    volumes:
+      - illari_u1_postgres:/var/lib/postgresql/data
+      - ./database/init-u1-databases.sh:/docker-entrypoint-initdb.d/01-init-u1-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d illari_cliente"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [illari-net]
+
+  legal-config:
+    build: ./infra/legal-config
+    image: illari/legal-config:1.0.0
+    container_name: legal-config
+    environment:
+      SERVER_PORT: 8888
+      CONFIG_REPO_PATH: file:/config-repo
+    ports:
+      - "28888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8888/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  legal-eureka:
+    build: ./infra/legal-eureka
+    image: illari/legal-eureka:1.0.0
+    container_name: legal-eureka
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      SERVER_PORT: 8761
+    ports:
+      - "28761:8761"
+    depends_on:
+      legal-config:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8761/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  cliente-ms:
+    build: ./services/cliente-ms
+    image: illari/cliente-ms:1.0.0
+    container_name: cliente-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_INSTANCE_ID: cliente-ms:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      legal-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  servicio-legal-ms:
+    build: ./services/servicio-legal-ms
+    image: illari/servicio-legal-ms:1.0.0
+    container_name: servicio-legal-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_INSTANCE_ID: servicio-legal-ms:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      legal-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  orden-legal-ms-1:
+    build: ./services/orden-legal-ms
+    image: illari/orden-legal-ms:1.0.0
+    container_name: orden-legal-ms-1
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_INSTANCE_ID: orden-legal-ms:instancia-1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      legal-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  orden-legal-ms-2:
+    build: ./services/orden-legal-ms
+    image: illari/orden-legal-ms:1.0.0
+    container_name: orden-legal-ms-2
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_INSTANCE_ID: orden-legal-ms:instancia-2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      legal-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  pago-ms:
+    build: ./services/pago-ms
+    image: illari/pago-ms:1.0.0
+    container_name: pago-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      EUREKA_INSTANCE_ID: pago-ms:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      legal-eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+  legal-gateway:
+    build: ./infra/legal-gateway
+    image: illari/legal-gateway:1.0.0
+    container_name: legal-gateway
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://legal-config:8888
+      EUREKA_INSTANCE_ID: legal-gateway:8080
+    ports:
+      - "28080:8080"
+    depends_on:
+      legal-eureka:
+        condition: service_healthy
+      cliente-ms:
+        condition: service_healthy
+      servicio-legal-ms:
+        condition: service_healthy
+      orden-legal-ms-1:
+        condition: service_healthy
+      orden-legal-ms-2:
+        condition: service_healthy
+      pago-ms:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 8s
+      timeout: 4s
+      retries: 30
+    networks: [illari-net]
+
+networks:
+  illari-net:
+    driver: bridge
+
+volumes:
+  illari_u1_postgres:

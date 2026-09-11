@@ -1,0 +1,54 @@
+server:
+  port: ${SERVER_PORT:8081}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:15432}/illari_cliente
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:18761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${EUREKA_INSTANCE_ID:${spring.application.name}:${server.port}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
+logging:
+  pattern:
+    level: "%5p [trace=%X{traceId:-} instance=%X{instanceId:-}]"
+  level:
+    com.illarilegal: INFO

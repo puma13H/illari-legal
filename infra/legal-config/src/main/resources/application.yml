@@ -1,0 +1,27 @@
+server:
+  port: ${SERVER_PORT:18888}
+
+spring:
+  application:
+    name: legal-config
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: ${CONFIG_REPO_PATH:file:./config-repo}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+info:
+  app:
+    name: Illari Legal Config Server
+    unit: Unidad I

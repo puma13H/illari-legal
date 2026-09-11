@@ -1,0 +1,22 @@
+# Dependencies/build
+node_modules/
+dist/
+target/
+*.log
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Runtime/local
+.env
+logs/
+backend/uploads/
+backend/data/
+backend/.tools/
+
+# Generated docs
+site/

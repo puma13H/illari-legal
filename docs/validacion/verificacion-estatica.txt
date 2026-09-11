@@ -1,0 +1,27 @@
+ILLARI LEGAL - VERIFICACION ESTATICA S1-S5
+Fecha: 2026-09-10
+
+RESULTADO: 34/34 criterios estructurales comprobados.
+
+[OK] Java 21 + Spring Boot 4.0.7 en los 7 componentes de U1.
+[OK] JPA + PostgreSQL + Flyway en los 4 microservicios.
+[OK] Swagger/OpenAPI + Actuator en los 4 microservicios.
+[OK] Migraciones V1/V2 en los 4 microservicios.
+[OK] CRUD GET/POST/PUT/DELETE en los 4 microservicios.
+[OK] application.yml local mínimo y Config Client.
+[OK] Perfiles DEV/PROD centralizados.
+[OK] Config Server.
+[OK] Eureka Server y clientes.
+[OK] Gateway.
+[OK] 4 rutas lb://.
+[OK] 2 instancias de orden-legal-ms en Docker PROD y 8083/8085 en DEV.
+[OK] Documentación S5 y MkDocs.
+[OK] Sin .env versionado ni contraseñas reales en config-repo.
+[OK] POM XML válidos y YAML de aplicación sintácticamente válido.
+[OK] javac no detectó patrones de error sintáctico en los fuentes Java.
+
+LIMITACION DEL ENTORNO DE REVISION:
+No se pudo ejecutar una compilación Maven completa ni levantar Docker porque la terminal
+utilizada para preparar el ZIP no dispone de acceso de red saliente y no tiene las
+dependencias Maven/Docker cacheadas. Para la comprobación dinámica final, ejecutar en
+Windows: scripts\windows\01-verificar-compilacion.bat, scripts\windows\02-configurar-entorno.bat, scripts\windows\03-iniciar-dev.bat y scripts\windows\04-demo-s5.bat.

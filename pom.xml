@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.illarilegal</groupId>
+  <artifactId>illari-legal-u1</artifactId>
+  <version>1.0.0</version>
+  <packaging>pom</packaging>
+  <name>Illari Legal Unidad I</name>
+
+  <modules>
+    <module>infra/legal-config</module>
+    <module>infra/legal-eureka</module>
+    <module>infra/legal-gateway</module>
+    <module>services/cliente-ms</module>
+    <module>services/servicio-legal-ms</module>
+    <module>services/orden-legal-ms</module>
+    <module>services/pago-ms</module>
+  </modules>
+</project>
