@@ -1,0 +1,96 @@
+/* Diseño común de los tres roles. Las reglas de cada área viven en su carpeta. */
+body .client-shell { background: #f4f6f8; --plum: #253f56; --muted: #647487; }
+body .client-shell .topbar { min-height: 84px; border-color: #dfe5eb; box-shadow: 0 2px 12px #273f5603; }
+body .client-shell .wordmark { font-size: 1rem; }
+body .client-shell .brand-mark { width: 39px; height: 41px; border-radius: 9px; }
+body .client-shell .client-nav button { min-height: 40px; padding: 9px 14px; border-radius: 7px; font-size: .82rem; }
+body .client-shell .client-nav button[aria-current='page'] { color: #243f56; background: #eaf0f5; box-shadow: inset 0 -2px #bea578; }
+body .client-shell .client-identity strong { font-size: .79rem; }
+body .client-shell .client-identity div > span { color: #728294; font-size: .67rem; }
+body .client-shell .logout-button { font-size: .76rem; }
+body .client-shell .client-avatar { width: 38px; height: 38px; color: #5b6b7c; border-color: #e0d8c6; background: #f8f5ee; }
+body .client-shell .client-panel, body .client-shell .lawyer-panel, body .client-shell .service-catalog { margin-top: 32px; }
+.portal-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+illari-page-banner { display: block; }
+.client-shell illari-page-banner .portal-banner { position: relative; display: flex; min-height: 274px; align-items: center; margin-bottom: 28px; padding: 35px 38px; overflow: hidden; isolation: isolate; border: 1px solid #21394d; border-radius: 14px; background: #1d3345; color: #fff; }
+.client-shell illari-page-banner .portal-banner.compact { min-height: 220px; padding-block: 29px; }
+.client-shell illari-page-banner .portal-banner > img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 57%; }
+.client-shell illari-page-banner .portal-banner::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, #142b3bf2 0%, #172f40e0 35%, #192f4180 65%, #192f4110 100%); content: ''; }
+.client-shell illari-page-banner .portal-banner-copy { max-width: 610px; }
+.client-shell illari-page-banner .portal-eyebrow { margin: 0; color: #e0cda3; font-size: .64rem; font-weight: 600; letter-spacing: .16em; }
+.client-shell illari-page-banner h1 { margin: 14px 0 12px; color: #fff; font-family: 'DM Serif Text', Georgia, serif; font-size: clamp(2rem, 3.1vw, 2.65rem); font-weight: 400; letter-spacing: -.02em; line-height: 1.15; }
+.client-shell illari-page-banner .portal-banner-description { max-width: 520px; color: #d3dee7; font-size: .87rem; line-height: 1.85; }
+.client-shell illari-page-banner .portal-banner-actions { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+.client-shell .portal-banner-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 12px; width: auto; min-height: 40px; padding: 9px 15px; border-radius: 6px; font-size: .77rem; font-weight: 600; }
+.client-shell .portal-banner-actions .banner-primary { color: #263c50; border-color: #ddc595; background: #e3cea5; }
+.client-shell .portal-banner-actions .banner-primary:hover:not(:disabled) { background: #f0ddba; }
+.client-shell .portal-banner-actions .banner-secondary { color: #eef2f5; border: 1px solid #c4d3df55; background: #ffffff0e; }
+.client-shell .portal-banner-actions .banner-secondary:hover:not(:disabled) { background: #ffffff25; }
+.client-shell .portal-banner-actions button:disabled { opacity: .6; color: #d5dfe7; background: #ffffff12; }
+.client-shell .portal-banner-actions button illari-icon { width: 16px; height: 16px; }
+.client-shell illari-page-banner .portal-banner-signature { position: absolute; right: 26px; bottom: 24px; display: flex; align-items: center; gap: 11px; padding: 12px 15px; border: 1px solid #fff3; border-radius: 8px; color: #e7d6b1; background: #14293bc4; }
+.client-shell illari-page-banner .portal-banner-signature > illari-icon { width: 25px; height: 25px; }
+.client-shell illari-page-banner .portal-banner-signature > span { font-size: .65rem; font-weight: 600; letter-spacing: .08em; }
+.client-shell illari-page-banner .portal-banner-signature small { display: block; margin-top: 3px; color: #d7e0e7; font-size: .59rem; font-weight: 400; letter-spacing: 0; }
+body .client-shell .stat-card, body .client-shell .lawyer-stats > div { border-color: #dfe5eb; border-radius: 12px; box-shadow: 0 4px 16px #243c5303; }
+body .client-shell .activity-card, body .client-shell .lawyer-box, body .client-shell .steps-card { border-color: #dfe5eb; border-radius: 12px; }
+body .client-shell .stat-card p, body .client-shell .lawyer-stats p { color: #617386; font-size: .79rem; }
+body .client-shell .order-service h3, body .client-shell .lawyer-case-name h3 { font-size: .86rem; }
+body .client-shell .order-service p, body .client-shell .lawyer-case-name p { color: #718295; font-size: .7rem; }
+body .client-shell .section-heading h2, body .client-shell .lawyer-box-heading h2 { font-size: 1.03rem; }
+body .client-shell .order-row:hover, body .client-shell .lawyer-case-list > li:hover { background: #fafcfd; }
+body .client-shell .service-callout { overflow: hidden; border-radius: 12px; background: #263f57; }
+body .client-shell .client-callout-photo { display: block; width: calc(100% + 48px); height: 125px; margin: -24px -24px 23px; object-fit: cover; object-position: center 63%; }
+body .client-shell .service-callout .callout-icon { display: none; }
+body .client-shell .service-callout h2 { font-family: 'DM Serif Text', Georgia, serif; font-size: 1.65rem; font-weight: 400; line-height: 1.25; }
+body .client-shell .pending-reminder { border-radius: 11px; border-color: #e5dcc7; background: #faf8f1; }
+body .client-shell .lawyer-demo { color: #6a7c8e; background: #edf2f6; border-color: #e0e7ed; }
+body .client-shell .lawyer-profile-card { border-radius: 12px; background: #213a50; }
+body .client-shell illari-service-catalog .service-card { position: relative; overflow: hidden; padding: 22px; border-radius: 12px; transition: border-color .15s, box-shadow .15s; }
+body .client-shell illari-service-catalog .service-card:hover { border-color: #becbd6; box-shadow: 0 6px 20px #233f5508; }
+body .client-shell illari-service-catalog .service-card.selected { border-color: #738da4; box-shadow: 0 0 0 1px #738da4; }
+body .client-shell .service-card-photo { position: relative; height: 118px; margin: -22px -22px 21px; overflow: hidden; background: #21394e; }
+body .client-shell .service-card-photo::after { position: absolute; inset: 0; background: linear-gradient(transparent 10%, #132b3cbb); content: ''; }
+body .client-shell .service-card-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 62%; }
+body .client-shell .service-photo-category { position: absolute; z-index: 1; left: 18px; bottom: 15px; display: inline-flex; align-items: center; gap: 8px; color: #f4ecda; font-size: .7rem; font-weight: 500; }
+body .client-shell .service-photo-category illari-icon { width: 17px; height: 17px; }
+body .client-shell illari-service-catalog .selection-mark { position: absolute; z-index: 1; top: 12px; right: 12px; display: inline-flex; width: auto; height: auto; gap: 5px; padding: 5px 8px; border: 1px solid #fff4; border-radius: 6px; color: #fff; background: #2c624f; font-size: .65rem; }
+body .client-shell illari-service-catalog .selection-mark illari-icon { width: 14px; height: 14px; }
+body .client-shell illari-service-catalog .service-description { color: #66788a; font-size: .8rem; }
+body .client-shell .selection-summary, body .client-shell .catalog-help, body .client-shell .catalog-toolbar { border-radius: 12px; }
+body .client-shell .portal-banner-actions .catalog-availability { color: #e4ecf2; background: #ffffff14; border: 1px solid #ffffff33; font-size: .72rem; }
+body .client-shell .portal-banner-actions .catalog-availability > span { background: #b9d5bc; }
+body .client-shell .checkout { width: min(calc(100% - 64px), 1000px); margin: 38px auto; border-radius: 15px; box-shadow: 0 12px 40px #253f5708; }
+body .client-shell .checkout .summary { position: relative; isolation: isolate; color: #e3ebf1; background: #263f57; }
+body .client-shell .checkout .summary::before { position: absolute; z-index: -2; inset: 0; background: url('/assets/images/portada-asesoria-640.jpg') center/cover; content: ''; }
+body .client-shell .checkout .summary::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(#193246ed, #193246b5); content: ''; }
+body .client-shell .checkout .summary h1 { color: #fff; font-family: 'DM Serif Text', Georgia, serif; font-size: 2.6rem; font-weight: 400; line-height: 1.15; }
+body .client-shell .checkout .summary .method { color: #ead9b6; border-color: #ead9b655; background: #ffffff0a; font-size: .85rem; }
+body .client-shell .checkout .summary-total, body .client-shell .checkout .summary-total strong, body .client-shell .checkout .order-number { color: #e7eef4; border-color: #e7eef444; }
+body .client-shell .checkout .content h2 { font-size: 1.6rem; }
+body .client-shell .checkout .field label { color: #3a5067; font-size: .84rem; }
+body .client-shell .checkout .content section > p { font-size: .85rem; line-height: 1.8; }
+body .client-shell .checkout .live-info { padding: 13px 15px; border: 1px solid #e7d9bb; border-radius: 7px; color: #7c6536; background: #faf7ee; }
+body .client-shell .paid-resource {display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-top:24px;padding:18px;border:1px solid #dce7df;border-radius:9px;background:#f2f8f4;}
+body .client-shell .paid-resource>illari-icon {color:#628572;}
+body .client-shell .paid-resource>div {flex:1;min-width:0;}
+body .client-shell .paid-resource h3 {margin:0 0 5px;font-family:'DM Sans',sans-serif;font-size:.9rem;line-height:1.7;}
+body .client-shell .paid-resource p,body .client-shell .resource-error p {color:#748797;font-size:.76rem;line-height:1.8;}
+body .client-shell .paid-resource button {display:inline-flex;align-items:center;gap:8px;min-height:38px;font-size:.78rem;}
+body .client-shell .resource-error {margin-top:20px;padding:16px;border:1px solid #e5ddd0;border-radius:7px;background:#faf7f1;}
+body .client-shell .resource-error button {margin-top:12px;font-size:.78rem;}
+@media (max-width: 1100px) { .client-shell illari-page-banner .portal-banner-copy { max-width: 67%; } .client-shell illari-page-banner .portal-banner-signature { display: none; } }
+@media (max-width: 900px) { body .client-shell .topbar { gap: 20px; } body .client-shell .header-actions { gap: 12px; } body .client-shell .client-nav button { padding-inline: 10px; font-size: .76rem; } }
+@media (max-width: 720px) {
+    body .client-shell .client-panel, body .client-shell .lawyer-panel, body .client-shell .service-catalog { width: calc(100% - 32px); margin-top: 20px; }
+    .client-shell illari-page-banner .portal-banner, .client-shell illari-page-banner .portal-banner.compact { min-height: 260px; padding: 28px; border-radius: 12px; }
+    .client-shell illari-page-banner .portal-banner-copy { max-width: 100%; }
+    .client-shell illari-page-banner .portal-banner::before { background: linear-gradient(90deg, #142b3bf5, #172f40cf 65%, #192f4166); }
+    .client-shell illari-page-banner h1 { font-size: 2.1rem; }
+    .client-shell illari-page-banner .portal-banner-description { max-width: 380px; font-size: .81rem; }
+    body .client-shell .checkout { width: calc(100% - 32px); margin: 24px auto; }
+}
+@media (max-width: 635px) { body .client-shell .topbar { min-height: 124px; gap: 12px; } body .client-shell .client-nav button { min-height: 38px; padding-inline: 13px; font-size: .78rem; } }
+@media (max-width: 635px) { body .client-shell .client-area-nav {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;} }
+@media (max-width: 390px) { .client-shell illari-page-banner .portal-banner, .client-shell illari-page-banner .portal-banner.compact { padding: 24px; } .client-shell illari-page-banner h1 { font-size: 1.9rem; } body .client-shell .client-nav button { padding-inline: 10px; font-size: .73rem; } }
+@media (prefers-reduced-motion: reduce) { body .client-shell illari-service-catalog .service-card { transition: none; } }

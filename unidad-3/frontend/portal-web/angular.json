@@ -1,0 +1,47 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": { "analytics": false },
+  "projects": {
+    "illari-portal-web": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "index": "src/index.html",
+            "outputPath": "dist/portal",
+            "deployUrl": "/",
+            "styles": ["src/styles.css"],
+            "tsConfig": "tsconfig.json",
+            "assets": [
+              { "glob": "config.json", "input": "src/local", "output": "checkout" },
+              { "glob": "illari-legal-welcome-v2-*.jpg", "input": "src/assets/images", "output": "assets/images" },
+              { "glob": "portada-*.jpg", "input": "src/assets/images", "output": "assets/images" },
+              { "glob": "dm-sans-latin-wght-normal.woff2", "input": "node_modules/@fontsource-variable/dm-sans/files", "output": "vendor" },
+              { "glob": "dm-serif-text-latin-400-normal.woff2", "input": "node_modules/@fontsource/dm-serif-text/files", "output": "vendor" },
+              { "glob": "LICENSE", "input": "node_modules/@fontsource-variable/dm-sans", "output": "vendor/dm-sans" },
+              { "glob": "LICENSE", "input": "node_modules/@fontsource/dm-serif-text", "output": "vendor/dm-serif-text" },
+              { "glob": "LICENSE.txt", "input": "node_modules/keycloak-js", "output": "vendor/keycloak" }
+            ]
+          },
+          "configurations": {
+            "production": {
+              "optimization": { "styles": { "inlineCritical": false } },
+              "outputHashing": "all"
+            },
+            "development": { "optimization": false, "sourceMap": true }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": { "buildTarget": "illari-portal-web:build:development", "proxyConfig": "proxy.conf.json", "port": 4200 }
+        }
+      }
+    }
+  }
+}

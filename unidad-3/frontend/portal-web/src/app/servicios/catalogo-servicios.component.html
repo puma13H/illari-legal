@@ -1,0 +1,286 @@
+<main class="service-catalog" [class.has-selection]="selected().length > 0" [attr.aria-busy]="loading()">
+    <illari-page-banner
+        eyebrow="CATÁLOGO DE ILLARI LEGAL"
+        title="Servicios y recursos legales"
+        description="El respaldo que necesitas, a tu alcance. Agrega uno o varios servicios y págalos juntos."
+        [compact]="true"
+    >
+        <span class="catalog-availability"
+            ><span></span>{{ loading() ? 'Consultando catálogo' : services().length + ' opciones disponibles' }}</span
+        >
+    </illari-page-banner>
+
+    <ol class="catalog-steps" aria-label="Pasos para contratar">
+        <li aria-current="step"><span>01</span><strong>Elige tus servicios</strong></li>
+        <li><span>02</span><strong>Paga con Yape</strong></li>
+        <li><span>03</span><strong>Consulta tu pedido</strong></li>
+    </ol>
+
+    <div
+        class="catalog-notice"
+        role="status"
+        aria-live="polite"
+        [hidden]="!notice().message || (loading() && !selected().length)"
+        [class.error]="notice().error"
+    >
+        <p>{{ notice().message }}</p>
+        @if (notice().error) {
+            <button type="button" class="quiet" [disabled]="loading()" (click)="reload.emit()">
+                Volver a intentar
+            </button>
+        }
+    </div>
+
+    <div class="catalog-layout">
+        <section class="catalog-results" aria-label="Servicios disponibles">
+            <div class="catalog-toolbar">
+                <div class="catalog-search">
+                    <illari-icon name="search" /><input
+                        type="search"
+                        aria-label="Buscar servicios"
+                        placeholder="Buscar un servicio o recurso…"
+                        [value]="search()"
+                        (input)="searchServices($event)"
+                        [disabled]="loading()"
+                    />
+                </div>
+                <div class="catalog-control">
+                    <label for="catalog-category">Categoría</label
+                    ><select
+                        id="catalog-category"
+                        [value]="category()"
+                        (change)="changeCategory($event)"
+                        [disabled]="loading()"
+                    >
+                        <option value="">Todas las categorías</option>
+                        @for (item of categories(); track item) {
+                            <option [value]="item">{{ item }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="catalog-control">
+                    <label for="catalog-sort">Ordenar por</label
+                    ><select id="catalog-sort" [value]="sort()" (change)="changeSort($event)" [disabled]="loading()">
+                        <option value="name">Nombre: A–Z</option>
+                        <option value="lowest">Menor precio</option>
+                        <option value="highest">Mayor precio</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="catalog-result-count" role="status" aria-live="polite">
+                <p>
+                    {{
+                        loading()
+                            ? 'Cargando servicios…'
+                            : filtered().length + (filtered().length === 1 ? ' resultado' : ' resultados')
+                    }}
+                </p>
+                @if (search() || category()) {
+                    <button type="button" class="catalog-text-button" [disabled]="loading()" (click)="clearFilters()">
+                        Limpiar filtros
+                    </button>
+                }
+            </div>
+
+            @if (loading() && !services().length) {
+                <div class="service-grid" aria-label="Cargando servicios">
+                    @for (item of [1, 2, 3, 4]; track item) {
+                        <div class="service-skeleton"><span></span><span></span><span></span></div>
+                    }
+                </div>
+            } @else if (notice().error && !services().length) {
+                <div class="catalog-empty">
+                    <illari-icon name="refresh" />
+                    <h2>El catálogo no está disponible</h2>
+                    <p>Vuelve a intentarlo para consultar nuestros servicios.</p>
+                </div>
+            } @else if (filtered().length) {
+                <div class="service-grid">
+                    @for (service of filtered(); track service.id) {
+                        <article
+                            class="service-card"
+                            [class.selected]="isSelected(service.id)"
+                            [attr.aria-labelledby]="'service-title-' + service.id"
+                        >
+                            <div class="service-card-photo">
+                                <img
+                                    [src]="'/assets/images/portada-' + photo(service) + '-640.jpg'"
+                                    width="640"
+                                    height="427"
+                                    alt=""
+                                    loading="lazy"
+                                    decoding="async"
+                                /><span class="service-photo-category"
+                                    ><illari-icon [name]="icon(service)" />{{ categoryLabel(service) }}</span
+                                >
+                                @if (isSelected(service.id)) {
+                                    <span class="selection-mark" aria-hidden="true"
+                                        ><illari-icon name="check" /> Agregado</span
+                                    >
+                                }
+                            </div>
+                            <h2 [id]="'service-title-' + service.id">{{ service.nombre }}</h2>
+                            <p class="service-description">
+                                {{
+                                    service.descripcion ||
+                                        'Consulta el importe y selecciona este servicio para continuar.'
+                                }}
+                            </p>
+                            <div class="service-card-bottom">
+                                <div>
+                                    <span>Importe</span><strong>{{ amount(service.precio) }}</strong>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="quiet service-select"
+                                    [class.is-selected]="isSelected(service.id)"
+                                    [attr.aria-pressed]="isSelected(service.id)"
+                                    [attr.aria-label]="
+                                        (isSelected(service.id) ? 'Quitar ' : 'Agregar ') + service.nombre
+                                    "
+                                    [disabled]="loading()"
+                                    (click)="select(service.id)"
+                                >
+                                    {{ isSelected(service.id) ? 'Agregado' : 'Agregar'
+                                    }}<illari-icon [name]="isSelected(service.id) ? 'check' : 'arrow'" />
+                                </button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            } @else {
+                <div class="catalog-empty">
+                    <illari-icon name="search" />
+                    <h2>
+                        {{ services().length ? 'No encontramos coincidencias' : 'Pronto encontrarás servicios aquí' }}
+                    </h2>
+                    <p>
+                        {{
+                            services().length
+                                ? 'Busca por otra palabra o elige una categoría diferente.'
+                                : 'El catálogo se mostrará cuando haya servicios disponibles.'
+                        }}
+                    </p>
+                    @if (services().length) {
+                        <button type="button" class="quiet" (click)="clearFilters()">Ver todos los servicios</button>
+                    }
+                </div>
+            }
+        </section>
+
+        <aside class="catalog-sidebar" aria-labelledby="selection-title">
+            <section class="selection-summary">
+                <div class="selection-heading">
+                    <illari-icon name="briefcase" />
+                    <h2 id="selection-title">Tu pedido</h2>
+                    <span class="basket-count" [attr.aria-label]="selected().length + ' servicios agregados'">{{
+                        selected().length
+                    }}</span>
+                </div>
+                <div class="selection-details" aria-live="polite">
+                    @if (selected().length) {
+                        <div class="basket-heading">
+                            <p>
+                                {{
+                                    selected().length === 1
+                                        ? '1 servicio agregado'
+                                        : selected().length + ' servicios agregados'
+                                }}
+                            </p>
+                            <button
+                                type="button"
+                                class="catalog-text-button"
+                                [disabled]="loading()"
+                                (click)="clearSelection()"
+                            >
+                                Vaciar pedido
+                            </button>
+                        </div>
+                        <ul class="basket-list">
+                            @for (service of selected(); track service.id) {
+                                <li>
+                                    <div>
+                                        <h3>{{ service.nombre }}</h3>
+                                        <span>{{ categoryLabel(service) }}</span
+                                        ><strong>{{ amount(service.precio) }}</strong>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="basket-remove"
+                                        [attr.aria-label]="'Quitar ' + service.nombre + ' del pedido'"
+                                        [disabled]="loading()"
+                                        (click)="remove(service.id)"
+                                    >
+                                        <illari-icon name="close" />
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                        <div class="selection-total">
+                            <span>Total a pagar</span><strong>{{ amount(total()) }}</strong>
+                        </div>
+                    } @else {
+                        <div class="selection-empty">
+                            <illari-icon name="file" />
+                            <h3>Agrega servicios a tu pedido</h3>
+                            <p>Puedes elegir varios y pagarlos juntos. Aquí verás el detalle y el total.</p>
+                        </div>
+                    }
+                </div>
+                <div class="selection-method">
+                    <span class="yape-label">Yape</span><span>Pago con código de aprobación</span>
+                </div>
+                @if (belowMinimum()) {
+                    <p class="selection-minimum" role="status">
+                        El total mínimo para pagar con Yape en este portal es {{ amount(yapeMinCentimos() / 100) }}. Tu
+                        selección se conserva y todavía no se enviará un cobro.
+                    </p>
+                }
+                <button
+                    type="button"
+                    class="catalog-continue"
+                    [disabled]="!selected().length || belowMinimum() || loading() || notice().error"
+                    (click)="continue()"
+                >
+                    {{ loading() && selected().length ? 'Preparando pedido…' : 'Continuar al pago'
+                    }}<illari-icon name="arrow" />
+                </button>
+                <p class="selection-note">
+                    {{
+                        belowMinimum()
+                            ? 'Puedes conservar tu selección para un pedido posterior.'
+                            : 'En el siguiente paso podrás ingresar tu celular y el código de tu app Yape.'
+                    }}
+                </p>
+            </section>
+            <section class="catalog-help">
+                <illari-icon name="shield" />
+                <div>
+                    <h2>Un pedido, un solo pago</h2>
+                    <p>
+                        Agrega o quita servicios antes de continuar. Confirmarás el pago del total en el siguiente paso.
+                    </p>
+                </div>
+            </section>
+        </aside>
+    </div>
+
+    <footer class="catalog-footer">
+        <span>ILLARI LEGAL <span>/</span> Servicios y recursos legales</span
+        ><span>Precios expresados en soles (PEN)</span>
+    </footer>
+    @if (selected().length) {
+        <div class="mobile-selection">
+            <div>
+                <span>{{
+                    selected().length === 1 ? '1 servicio en tu pedido' : selected().length + ' servicios en tu pedido'
+                }}</span
+                ><strong>{{ amount(total()) }}</strong>
+            </div>
+            <button type="button" [disabled]="loading() || belowMinimum() || notice().error" (click)="continue()">
+                Continuar <illari-icon name="arrow" />
+            </button>
+        </div>
+    }
+</main>

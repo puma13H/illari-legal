@@ -1,0 +1,123 @@
+<main class="lawyer-panel" [attr.aria-busy]="loading()">
+    @if (detail() || detailLoading() || detailError()) {
+    <header class="lawyer-heading">
+        <div><p class="lawyer-eyebrow">ÁREA PROFESIONAL</p><h1>{{ detail() ? 'Expediente #' + detail()!.id : section() === 'home' ? 'Hola, ' + firstName() + '.' : section() === 'cases' ? 'Mis casos' : 'Agenda de audiencias' }}</h1><p>{{ detail() ? 'Información, documentos y seguimiento del caso.' : section() === 'home' ? 'Este es el resumen de tus expedientes y próximas actividades.' : section() === 'cases' ? 'Consulta y gestiona los expedientes asignados a tu perfil.' : 'Fechas de audiencia registradas en tus casos en seguimiento.' }}</p></div>
+        @if (detail() || detailLoading() || detailError()) { <button type="button" class="quiet" (click)="closeDetail()"><illari-icon name="arrow" class="lawyer-back-icon" /> Volver al panel</button> }
+        @else { <button type="button" class="quiet" [disabled]="loading()" (click)="load()"><illari-icon name="refresh" /> Actualizar</button> }
+    </header>
+    } @else {
+        <illari-page-banner eyebrow="ÁREA PROFESIONAL" image="expedientes" [compact]="section() !== 'home'"
+            [title]="section() === 'home' ? 'Hola, ' + firstName() + '.' : section() === 'cases' ? 'Mis casos' : 'Agenda de audiencias'"
+            [description]="section() === 'home' ? 'Tus expedientes, documentos y próximas audiencias en un espacio de trabajo organizado.' : section() === 'cases' ? 'Consulta y gestiona los expedientes asignados a tu perfil.' : 'Organiza tus próximas actividades a partir de las fechas de tus casos.'">
+            <button type="button" class="banner-secondary" [disabled]="loading()" (click)="load()"><illari-icon name="refresh" /> Actualizar expedientes</button>
+        </illari-page-banner>
+    }
+
+    @if (demo()) { <p class="lawyer-demo"><illari-icon name="file" /> Los expedientes de referencia permiten conocer la organización del portal. Los asuntos nuevos se registran desde Administración.</p> }
+    @if (error()) { <p class="lawyer-alert error" role="alert">{{ error() }}</p> }
+
+    @if (detailLoading()) {
+        <section class="lawyer-empty" role="status"><illari-icon name="refresh" /><h2>Abriendo expediente…</h2><p>Estamos consultando su información y documentos.</p></section>
+    } @else if (detailError()) {
+        <section class="lawyer-empty" role="alert"><illari-icon name="file" /><h2>No se pudo abrir el expediente</h2><p>{{ detailError() }}</p><button type="button" class="quiet" (click)="closeDetail()">Volver al listado</button></section>
+    } @else if (detail(); as current) {
+        <div class="lawyer-detail-grid">
+            <div class="lawyer-detail-main">
+                <section class="lawyer-box case-information">
+                    <div class="case-info-heading"><span class="lawyer-large-icon"><illari-icon name="briefcase" /></span><span class="case-status" [class.closed]="closed(current)">{{ current.estado }}</span></div>
+                    <h2>{{ current.nombreCaso }}</h2><p class="case-description">{{ current.descripcion || 'Este expediente todavía no tiene una descripción registrada.' }}</p>
+                    <dl class="case-metadata"><div><dt>Cliente</dt><dd>{{ current.clienteNombre }}</dd></div><div><dt>Profesional asignado</dt><dd>{{ current.abogadoNombre }}</dd></div><div><dt>Fecha de apertura</dt><dd>{{ dateLabel(current.fechaApertura) }}</dd></div><div><dt>Fecha de audiencia</dt><dd>{{ dateLabel(current.fechaAudiencia) }}</dd></div></dl>
+                </section>
+                <section class="lawyer-box" aria-labelledby="documents-title">
+                    <header class="lawyer-box-heading"><div><h2 id="documents-title">Documentos del expediente</h2><p>{{ documents().length }} archivos registrados</p></div><button type="button" class="lawyer-text-button" [disabled]="documentsLoading()" (click)="loadDocuments(current.id)"><illari-icon name="refresh" /> Actualizar</button></header>
+                    @if (documentError()) { <p class="lawyer-alert error" role="alert">{{ documentError() }}</p> }
+                    @if (documentsLoading()) { <p class="lawyer-inline-empty" role="status">Consultando documentos…</p> }
+                    @else if (documents().length) {
+                        <ul class="case-documents">
+                            @for (document of documents(); track document.id) {
+                                <li><span class="lawyer-document-icon"><illari-icon name="file" /></span><div><h3>{{ document.nombre }}</h3><p>{{ document.tipoArchivo.toUpperCase() }} · {{ fileSize(document.tamanoArchivo) }}</p></div><button type="button" class="quiet document-download" [attr.aria-label]="'Descargar ' + document.nombre" [disabled]="downloading() !== null" (click)="download(document)"><illari-icon name="download" /><span>{{ downloading() === document.id ? 'Descargando…' : 'Descargar' }}</span></button></li>
+                            }
+                        </ul>
+                    } @else if (!documentError()) { <p class="lawyer-inline-empty">Este expediente todavía no tiene documentos.</p> }
+                    <div class="document-upload">
+                        <h3>Adjuntar documento</h3><p>PDF, Word, texto o imagen. Tamaño máximo: 5 MB.</p>
+                        <form (submit)="$event.preventDefault(); upload()">
+                            <div class="lawyer-field"><label for="document-name">Nombre del documento</label><input id="document-name" type="text" [formControl]="documentName" maxlength="160" [attr.disabled]="uploading() ? true : null" placeholder="Ej.: Contrato para revisión"></div>
+                            <div class="lawyer-field"><label for="case-file">Archivo</label><input id="case-file" type="file" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" [disabled]="uploading()" (change)="chooseFile($event)"></div>
+                            @if (uploadMessage()) { <p class="lawyer-form-message" role="status" [class.error]="uploadFailed()">{{ uploadMessage() }}</p> }
+                            <button type="submit" class="upload-document" [disabled]="uploading() || !selectedFile() || documentName.invalid || !documentName.value.trim()"><illari-icon name="upload" />{{ uploading() ? 'Adjuntando…' : 'Adjuntar al expediente' }}</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+            <aside class="lawyer-detail-side">
+                <section class="lawyer-box followup-box">
+                    <header class="lawyer-box-heading"><div><h2>Seguimiento del caso</h2><p>Mantén actualizado el estado y la fecha de audiencia.</p></div></header>
+                    <form [formGroup]="followup" (ngSubmit)="saveFollowup()">
+                        <div class="lawyer-field"><label for="case-status">Estado</label><select id="case-status" formControlName="estado" [attr.disabled]="saving() ? true : null">@if (!states.includes(current.estado)) { <option [value]="current.estado">{{ current.estado }}</option> }@for (state of states; track state) { <option [value]="state">{{ state }}</option> }</select></div>
+                        <div class="lawyer-field"><label for="case-hearing">Fecha de audiencia</label><input id="case-hearing" type="date" formControlName="fechaAudiencia" [min]="current.fechaApertura" [attr.disabled]="saving() ? true : null"><span>Deja el campo vacío si todavía no hay una fecha.</span></div>
+                        @if (followupMessage()) { <p class="lawyer-form-message" role="status" [class.error]="followupFailed()">{{ followupMessage() }}</p> }
+                        <button type="submit" [disabled]="saving() || followup.invalid || !followup.dirty">{{ saving() ? 'Guardando…' : 'Guardar seguimiento' }}</button>
+                    </form>
+                </section>
+                <div class="lawyer-detail-note"><illari-icon name="shield" /><p>La información y los documentos pertenecen al expediente seleccionado.</p></div>
+            </aside>
+        </div>
+    } @else {
+        <section class="lawyer-stats" aria-label="Resumen de tus expedientes">
+            <div><span class="lawyer-stat-icon"><illari-icon name="briefcase" /></span><p>Casos asignados</p><strong>{{ loading() || error() ? '—' : cases().length }}</strong></div>
+            <div><span class="lawyer-stat-icon amber"><illari-icon name="clock" /></span><p>En seguimiento</p><strong>{{ loading() || error() ? '—' : activeCases().length }}</strong></div>
+            <div><span class="lawyer-stat-icon blue"><illari-icon name="calendar" /></span><p>Audiencias próximas</p><strong>{{ loading() || error() ? '—' : upcoming().length }}</strong></div>
+            <div><span class="lawyer-stat-icon green"><illari-icon name="check" /></span><p>Casos cerrados</p><strong>{{ loading() || error() ? '—' : closedCases().length }}</strong></div>
+        </section>
+
+        @if (loading()) {
+            <section class="lawyer-empty" role="status"><illari-icon name="refresh" /><h2>Consultando tus expedientes…</h2><p>Estamos preparando la información de tu espacio de trabajo.</p></section>
+        } @else if (!error() && section() === 'agenda') {
+            <section class="lawyer-box">
+                <header class="lawyer-box-heading"><div><h2>Audiencias de tus casos</h2><p>Las fechas se actualizan desde el seguimiento de cada expediente.</p></div><label class="agenda-past"><input type="checkbox" [checked]="includePast()" (change)="includePast.set(!includePast())"> Incluir fechas anteriores</label></header>
+                @if (agenda().length) {
+                    <ul class="lawyer-agenda-list">
+                        @for (item of agenda(); track item.id) {
+                            <li><div class="hearing-date"><strong>{{ day(item.fechaAudiencia) }}</strong><span>{{ month(item.fechaAudiencia) }}</span></div><div><h3>{{ item.nombreCaso }}</h3><p>{{ item.clienteNombre }} · {{ dateLabel(item.fechaAudiencia) }}</p></div><span class="case-status">{{ item.estado }}</span><button type="button" class="quiet" [attr.aria-label]="'Ver expediente ' + item.id" (click)="openCase(item.id)">Ver expediente <illari-icon name="arrow" /></button></li>
+                        }
+                    </ul>
+                } @else {
+                    <div class="lawyer-empty in-box"><illari-icon name="calendar" /><h2>No tienes audiencias próximas</h2><p>Puedes registrar una fecha desde el seguimiento de tus casos.</p><button type="button" class="quiet" (click)="navigate.emit('cases')">Revisar mis casos</button></div>
+                }
+            </section>
+        } @else if (!error()) {
+            <div [class.lawyer-home-grid]="section() === 'home'">
+                <section class="lawyer-box">
+                    <header class="lawyer-box-heading"><div><h2>{{ section() === 'home' ? 'Tus expedientes' : 'Listado de casos' }}</h2><p>{{ section() === 'home' ? 'Consulta el estado de tus casos más recientes.' : 'Busca por número, nombre del caso o cliente.' }}</p></div>@if (section() === 'home') { <button type="button" class="lawyer-text-button" (click)="navigate.emit('cases')">Ver todos <illari-icon name="arrow" /></button> }</header>
+                    @if (section() === 'cases') {
+                        <div class="lawyer-case-tools"><div class="lawyer-search"><illari-icon name="search" /><input type="search" aria-label="Buscar casos" placeholder="Buscar caso o cliente…" [value]="search()" (input)="searchCases($event)"></div><select aria-label="Filtrar casos por estado" [value]="filter()" (change)="filterCases($event)"><option value="all">Todos los estados</option><option value="active">En seguimiento</option><option value="closed">Cerrados</option></select></div>
+                    }
+                    @if (visibleCases().length) {
+                        <div class="lawyer-case-columns" aria-hidden="true"><span>Expediente / cliente</span><span>Estado</span><span>Próxima audiencia</span><span></span></div>
+                        <ul class="lawyer-case-list">
+                            @for (item of visibleCases(); track item.id) {
+                                <li><div class="lawyer-case-name"><span class="lawyer-document-icon"><illari-icon name="file" /></span><div><h3>{{ item.nombreCaso }}</h3><p>#{{ item.id }} · {{ item.clienteNombre }}</p></div></div><span class="case-status" [class.closed]="closed(item)">{{ item.estado }}</span><span class="case-hearing-date">{{ item.fechaAudiencia ? dateLabel(item.fechaAudiencia) : 'Sin fecha' }}</span><button type="button" class="lawyer-text-button" [attr.aria-label]="'Ver expediente ' + item.id" (click)="openCase(item.id)">Ver expediente <illari-icon name="arrow" /></button></li>
+                            }
+                        </ul>
+                        <p class="lawyer-list-footer">{{ visibleCases().length }} de {{ cases().length }} expedientes</p>
+                    } @else {
+                        <div class="lawyer-empty in-box"><illari-icon name="briefcase" /><h2>{{ cases().length ? 'No encontramos coincidencias' : 'Aún no tienes casos asignados' }}</h2><p>{{ cases().length ? 'Busca por otro término o estado para encontrar el expediente.' : 'Los casos aparecerán aquí cuando se asignen a tu perfil.' }}</p>@if (cases().length) { <button type="button" class="quiet" (click)="clearFilters()">Limpiar filtros</button> }</div>
+                    }
+                </section>
+
+                @if (section() === 'home') {
+                    <aside class="lawyer-home-side">
+                        <section class="lawyer-box">
+                            <header class="lawyer-box-heading"><div><h2>Próximas audiencias</h2><p>Fechas de tus casos en seguimiento.</p></div></header>
+                            @if (upcoming().length) { <ul class="lawyer-upcoming">@for (item of upcoming().slice(0, 3); track item.id) { <li><div class="hearing-date"><strong>{{ day(item.fechaAudiencia) }}</strong><span>{{ month(item.fechaAudiencia) }}</span></div><div><h3>{{ item.nombreCaso }}</h3><button type="button" class="lawyer-text-button" [attr.aria-label]="'Abrir audiencia del caso ' + item.id" (click)="openCase(item.id)">Abrir expediente <illari-icon name="arrow" /></button></div></li> }</ul> } @else { <p class="lawyer-inline-empty">No tienes audiencias próximas registradas.</p> }
+                            <button type="button" class="lawyer-side-link" (click)="navigate.emit('agenda')">Consultar agenda <illari-icon name="arrow" /></button>
+                        </section>
+                        @if (profile(); as profile) { <section class="lawyer-profile-card"><span class="lawyer-profile-icon"><illari-icon name="scale" /></span><p>MI PERFIL PROFESIONAL</p><h2>{{ profile.nombre }}</h2><span>{{ profile.especialidad || 'Especialidad por registrar' }}</span><div><illari-icon name="shield" /> Espacio de trabajo personal</div></section> }
+                    </aside>
+                }
+            </div>
+        }
+    }
+    <footer class="lawyer-footer"><span>ILLARI LEGAL <span>/</span> Espacio del abogado</span><span><illari-icon name="shield" /> Expedientes asignados a tu perfil</span></footer>
+</main>

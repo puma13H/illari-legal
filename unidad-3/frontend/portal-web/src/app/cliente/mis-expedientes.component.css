@@ -1,0 +1,477 @@
+illari-client-cases {
+    display: block;
+}
+illari-client-cases .client-cases {
+    width: min(calc(100% - 64px), 1160px);
+    margin: 32px auto 0;
+    padding-bottom: 26px;
+}
+illari-client-cases h2,
+illari-client-cases h3 {
+    font-family: 'DM Sans', sans-serif;
+}
+illari-client-cases button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: auto;
+    min-height: 39px;
+    font-size: 0.78rem;
+}
+illari-client-cases button illari-icon {
+    width: 16px;
+    height: 16px;
+}
+illari-client-cases .client-case-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+}
+illari-client-cases .client-case-summary article {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    padding: 24px;
+    border: 1px solid #dfe6ed;
+    border-radius: 12px;
+    background: #fff;
+}
+illari-client-cases .client-case-summary article > illari-icon {
+    width: 25px;
+    height: 25px;
+    color: #9d8559;
+}
+illari-client-cases .client-case-summary p {
+    color: #6a7b8d;
+    font-size: 0.8rem;
+}
+illari-client-cases .client-case-summary strong {
+    display: block;
+    margin-top: 5px;
+    color: #2d445c;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+illari-client-cases .client-case-box {
+    min-width: 0;
+    overflow: hidden;
+    margin-bottom: 22px;
+    padding: 25px;
+    border: 1px solid #dfe6ed;
+    border-radius: 12px;
+    background: #fff;
+}
+illari-client-cases .client-case-box-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin: -25px -25px 0;
+    padding: 24px;
+    border-bottom: 1px solid #e8edf2;
+}
+illari-client-cases .client-case-box h2 {
+    margin: 0;
+    color: #2b4259;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+illari-client-cases .client-case-box-heading p {
+    margin-top: 5px;
+    color: #718295;
+    font-size: 0.76rem;
+    line-height: 1.8;
+}
+illari-client-cases .client-case-tools {
+    display: flex;
+    gap: 15px;
+    margin: 0 -25px;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e7edf3;
+}
+illari-client-cases .client-case-tools > div {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+illari-client-cases .client-case-tools illari-icon {
+    position: absolute;
+    left: 13px;
+    top: 14px;
+    width: 17px;
+    height: 17px;
+    color: #8b9cad;
+}
+illari-client-cases .client-case-tools input {
+    padding-left: 40px;
+}
+illari-client-cases input,
+illari-client-cases select {
+    border-color: #dbe4ed;
+    font-size: 0.81rem;
+    border-radius: 7px;
+}
+illari-client-cases .client-case-tools select {
+    width: 190px;
+}
+illari-client-cases .client-case-list {
+    margin: 0 -25px -25px;
+    padding: 0;
+    list-style: none;
+}
+illari-client-cases .client-case-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 24px;
+    border-bottom: 1px solid #e9edf2;
+}
+illari-client-cases .client-case-list li > div {
+    flex: 1;
+    min-width: 0;
+}
+illari-client-cases .client-case-list h3 {
+    margin: 0;
+    color: #30475e;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+illari-client-cases .client-case-list p {
+    margin-top: 5px;
+    color: #76889a;
+    font-size: 0.72rem;
+}
+illari-client-cases .client-case-file {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 38px;
+    height: 43px;
+    border: 1px solid #dee6ee;
+    border-radius: 8px;
+    color: #7c95ab;
+}
+illari-client-cases .client-case-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 5px 9px;
+    border: 1px solid #ecdfc5;
+    border-radius: 6px;
+    color: #8b6f38;
+    background: #fbf7ee;
+    font-size: 0.68rem;
+}
+illari-client-cases .client-case-status.closed {
+    border-color: #dcebe0;
+    color: #3a785c;
+    background: #f0f7f2;
+}
+illari-client-cases .client-case-empty {
+    display: grid;
+    justify-items: center;
+    gap: 15px;
+    min-height: 260px;
+    padding: 45px 20px;
+    text-align: center;
+}
+illari-client-cases .client-case-empty > illari-icon {
+    width: 32px;
+    height: 32px;
+    color: #879aab;
+}
+illari-client-cases .client-case-empty h2 {
+    margin: 0;
+    color: #3e556d;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+illari-client-cases .client-case-empty p {
+    max-width: 440px;
+    color: #718497;
+    font-size: 0.82rem;
+    line-height: 1.9;
+}
+illari-client-cases .client-case-alert {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px 18px;
+    border: 1px solid #ebd9df;
+    border-radius: 8px;
+    color: #924457;
+    background: #fbf1f3;
+    font-size: 0.8rem;
+    line-height: 1.8;
+}
+illari-client-cases .client-case-detail-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+    color: #7f8fa0;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+}
+illari-client-cases .client-back-arrow {
+    transform: rotate(180deg);
+}
+illari-client-cases .client-case-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 290px;
+    align-items: start;
+    gap: 24px;
+}
+illari-client-cases .client-case-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+illari-client-cases .client-case-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    border-radius: 9px;
+    color: #6c8aa3;
+    background: #eff4f8;
+}
+illari-client-cases .client-reference {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 3px 8px;
+    border: 1px solid #e0e6ec;
+    border-radius: 5px;
+    color: #718395;
+    background: #f7f9fb;
+    font-size: 0.62rem;
+}
+illari-client-cases .client-case-description {
+    margin-top: 15px;
+    color: #6a7e91;
+    font-size: 0.84rem;
+    line-height: 1.95;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+illari-client-cases .client-case-metadata {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 23px;
+    margin: 24px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid #e6ecf2;
+}
+illari-client-cases dt {
+    color: #7a8c9e;
+    font-size: 0.7rem;
+}
+illari-client-cases dd {
+    margin: 6px 0 0;
+    color: #425b72;
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+}
+illari-client-cases .client-case-footnote {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid #e6ecf2;
+    color: #7a8b9b;
+    font-size: 0.7rem;
+    line-height: 1.8;
+}
+illari-client-cases .client-case-contact {
+    padding: 25px;
+    border-radius: 12px;
+    color: #dce5ec;
+    background: #253f56;
+}
+illari-client-cases .client-case-contact .client-case-symbol {
+    margin-bottom: 23px;
+    color: #d6be8a;
+    background: #ffffff0a;
+    border: 1px solid #ffffff26;
+}
+illari-client-cases .client-case-contact > p {
+    font-size: 0.61rem;
+    letter-spacing: 0.1em;
+    color: #c8d3dd;
+}
+illari-client-cases .client-case-contact h2 {
+    margin: 12px 0 24px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+illari-client-cases .client-case-contact dl > div + div {
+    margin-top: 21px;
+}
+illari-client-cases .client-case-contact dt {
+    color: #afc2d2;
+}
+illari-client-cases .client-case-contact dd {
+    color: #e0e8ef;
+    font-size: 0.78rem;
+    line-height: 1.8;
+}
+illari-client-cases .client-case-security {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    margin-top: 20px;
+    padding: 17px;
+    color: #7890a5;
+    background: #edf3f8;
+    border: 1px solid #dfe8f1;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    line-height: 1.9;
+}
+illari-client-cases .client-case-security illari-icon {
+    width: 17px;
+    height: 17px;
+    margin-top: 3px;
+}
+illari-client-cases .client-case-documents {
+    margin: 0 -25px -25px;
+    padding: 0;
+    list-style: none;
+}
+illari-client-cases .client-case-documents li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 25px;
+    border-bottom: 1px solid #e7edf3;
+}
+illari-client-cases .client-case-documents li > div {
+    flex: 1;
+    min-width: 0;
+}
+illari-client-cases .client-case-documents h3 {
+    margin: 0;
+    color: #40576e;
+    font-size: 0.82rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+illari-client-cases .client-case-documents p {
+    margin-top: 5px;
+    color: #8393a3;
+    font-size: 0.68rem;
+}
+illari-client-cases .client-case-inline {
+    padding: 24px;
+    color: #74879a;
+    font-size: 0.8rem;
+    line-height: 1.8;
+}
+illari-client-cases .client-case-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #dce5ed;
+    color: #7a8b9c;
+    font-size: 0.68rem;
+}
+illari-client-cases .client-case-footer > span:last-child {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+illari-client-cases .client-case-footer illari-icon {
+    width: 14px;
+    height: 14px;
+}
+@media (max-width: 900px) {
+    illari-client-cases .client-case-layout {
+        grid-template-columns: 1fr;
+    }
+    illari-client-cases .client-case-contact dl {
+        display: flex;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+    illari-client-cases .client-case-contact dl > div + div {
+        margin-top: 0;
+    }
+    illari-client-cases .client-case-list li {
+        flex-wrap: wrap;
+    }
+    illari-client-cases .client-case-list li > div {
+        flex-basis: 65%;
+    }
+    illari-client-cases .client-case-list .client-case-status {
+        margin-left: 53px;
+    }
+    illari-client-cases .client-case-summary article {
+        padding: 20px;
+    }
+}
+@media (max-width: 635px) {
+    illari-client-cases .client-cases {
+        width: calc(100% - 32px);
+        margin-top: 20px;
+    }
+    illari-client-cases .client-case-summary {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    illari-client-cases .client-case-summary article {
+        padding: 16px 20px;
+    }
+    illari-client-cases .client-case-summary article > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex: 1;
+        gap: 10px;
+    }
+    illari-client-cases .client-case-summary strong {
+        margin: 0;
+    }
+    illari-client-cases .client-case-tools {
+        flex-direction: column;
+    }
+    illari-client-cases .client-case-tools select {
+        width: 100%;
+    }
+    illari-client-cases .client-case-box-heading {
+        flex-wrap: wrap;
+    }
+    illari-client-cases .client-case-list li > button {
+        margin-left: 53px;
+    }
+    illari-client-cases .client-case-metadata {
+        grid-template-columns: 1fr;
+    }
+    illari-client-cases .client-case-documents li {
+        flex-wrap: wrap;
+    }
+    illari-client-cases .client-case-documents button {
+        margin-left: 50px;
+    }
+    illari-client-cases .client-case-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    illari-client-cases .client-case-alert {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

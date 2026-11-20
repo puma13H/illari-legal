@@ -1,0 +1,13 @@
+.request-row { display:flex; align-items:center; justify-content:space-between; gap:1.5rem; padding:1.5rem; border-bottom:1px solid #e0e7ef; }
+.request-row > div { min-width:0; overflow-wrap:anywhere; }
+.request-row h3 { margin:.5rem 0; color:#20394f; font-size:1.1rem; }
+.request-row p,.request-assignment p { color:#63758a; line-height:1.6; margin:.4rem 0; }
+.request-assigned { display:inline-block; margin-top:.4rem; padding:.25rem .7rem; background:#e9f4ee; color:#286347; border-radius:5px; font-size:.8rem; }
+.request-assignment { padding:1.5rem; background:#f5f8fb; border:1px solid #dce5ee; border-radius:10px; margin:1.5rem 0; }
+.request-empty { padding:3rem 1rem; text-align:center; color:#63758a; }
+.request-pagination { display:flex; align-items:center; justify-content:flex-end; gap:1rem; padding:1.5rem; color:#63758a; }
+@media(max-width:640px) { .request-row { align-items:flex-start; flex-direction:column; } .request-pagination { justify-content:center; } }
+@media(max-width:635px) {
+    body .admin-shell .client-nav { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; gap:4px; }
+    body .admin-shell .client-nav button { min-width:0; padding-inline:7px; }
+}

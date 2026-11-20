@@ -1,0 +1,37 @@
+<section class="admin-box" aria-labelledby="requests-title" [attr.aria-busy]="loading()">
+    <header class="admin-box-heading">
+        <div><p class="admin-eyebrow">ATENCIÓN DE ASESORÍAS</p><h2 id="requests-title">Solicitudes con pago confirmado</h2>
+            <p>Cada asesoría se vincula con un expediente y un abogado responsable. Los PDF se entregan desde el pedido.</p></div>
+        <button class="quiet" type="button" [disabled]="loading() || saving()" (click)="load()">Actualizar solicitudes</button>
+    </header>
+    @if (message()) { <p class="admin-alert success" role="status">{{ message() }}</p> }
+    @if (error()) { <p class="admin-alert error" role="alert">{{ error() }}</p> }
+    @if (selected(); as item) {
+        <form class="request-assignment" [formGroup]="form" (ngSubmit)="assign()">
+            <h3>Asignar {{ item.servicio }}</h3><p>{{ item.cliente }} · Pedido #{{ item.pedidoId }}</p>
+            <fieldset [disabled]="saving()"><div class="admin-form-grid">
+                <div class="admin-field"><label for="request-lawyer">Abogado responsable</label>
+                    <select id="request-lawyer" formControlName="lawyer" required><option value="">Selecciona un abogado</option>
+                    @for (lawyer of lawyers(); track lawyer.id) { <option [value]="lawyer.id">{{ lawyer.nombre }} · {{ lawyer.especialidad }}</option> }</select></div>
+                <div class="admin-field wide"><label for="request-description">Indicaciones iniciales (opcional)</label>
+                    <textarea id="request-description" formControlName="description" maxlength="2000" rows="3"></textarea></div>
+            </div></fieldset>
+            <div class="admin-form-actions"><button type="submit" [disabled]="saving() || form.invalid">{{ saving() ? 'Asignando…' : 'Crear expediente y asignar' }}</button>
+                <button type="button" class="quiet" [disabled]="saving()" (click)="selected.set(null)">Cancelar</button></div>
+        </form>
+    }
+    <div class="request-list">
+        @for (item of items(); track item.pedidoId + ':' + item.posicion) {
+            <article class="request-row"><div><span class="admin-eyebrow">PEDIDO #{{ item.pedidoId }}</span><h3>{{ item.servicio }}</h3>
+                <p>{{ item.cliente }} · {{ item.cantidad }} unidad(es) · {{ money.format(item.importe) }}</p></div>
+                @if (item.expedienteId) { <div><strong>Expediente #{{ item.expedienteId }}</strong><p>{{ item.abogado }}</p><span class="request-assigned">Asignado</span></div> }
+                @else if (!item.clienteId) { <p>Requiere revisar el perfil del comprador.</p> }
+                @else { <button type="button" class="quiet" [disabled]="saving() || loading()" (click)="choose(item)">Asignar abogado</button> }
+            </article>
+        } @empty {
+            @if (!loading() && !error()) { <div class="request-empty"><h3>No hay asesorías en esta página</h3><p>Las nuevas asesorías aparecerán después de que se confirme su pago.</p></div> }
+        }
+    </div>
+    <footer class="request-pagination"><button type="button" class="quiet" [disabled]="page() === 0 || loading() || saving()" (click)="load(page() - 1)">Anterior</button>
+        <span>Página {{ page() + 1 }}</span><button type="button" class="quiet" [disabled]="!hasMore() || loading() || saving()" (click)="load(page() + 1)">Siguiente</button></footer>
+</section>

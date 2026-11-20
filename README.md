@@ -1,4 +1,15 @@
-# Illari Legal — Unidad I de Sistemas Distribuidos
+# Illari Legal
+
+## Entrega final de la Unidad III
+
+El [proyecto integrado](unidad-3/) incluye el portal Angular, los microservicios y el pago con Yape. Para ejecutarlo, abre una terminal en `unidad-3/` y sigue el [manual de instalación](unidad-3/documentacion/OPERACION.md#primera-instalación).
+
+- [Presentación de la defensa](unidad-3/documentacion/exposicion/ILLARI_LEGAL_U3_Defensa.pptx)
+- [Guion de Frank y Emerlin](unidad-3/documentacion/exposicion/Guion_de_exposicion_ILLARI_LEGAL_U3.docx)
+- [Informe de la Unidad III](unidad-3/u3-producto.md)
+
+## Unidad I de Sistemas Distribuidos
+
 
 Proyecto académico de microservicios para las sesiones **S1–S4** y la **S5 — Evaluación de Unidad I**.
 

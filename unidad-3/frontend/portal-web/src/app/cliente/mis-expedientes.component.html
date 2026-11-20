@@ -1,0 +1,249 @@
+<main class="client-cases" [attr.aria-busy]="loading()">
+    <illari-page-banner
+        eyebrow="ACOMPAÑAMIENTO LEGAL"
+        title="Mis expedientes"
+        description="Consulta el avance de tus asuntos, las próximas fechas y los documentos de tu atención."
+        image="expedientes"
+        [compact]="true"
+        ><button type="button" class="banner-secondary" [disabled]="loading()" (click)="load()">
+            <illari-icon name="refresh" /> Actualizar información
+        </button></illari-page-banner
+    >
+    @if (error()) {
+        <div class="client-case-alert" role="alert">
+            <p>{{ error() }}</p>
+            <button type="button" class="quiet" [disabled]="loading()" (click)="load()">Volver a intentar</button>
+        </div>
+    }
+    @if (detailLoading() && !selected()) {
+        <div class="client-case-empty" role="status">
+            <illari-icon name="refresh" />
+            <h2>Abriendo tu expediente…</h2>
+        </div>
+    } @else if (detailError()) {
+        <div class="client-case-empty" role="alert">
+            <h2>No se pudo abrir el expediente</h2>
+            <p>{{ detailError() }}</p>
+            <button type="button" class="quiet" (click)="close()">Volver a mis expedientes</button>
+        </div>
+    } @else if (selected(); as item) {
+        <div class="client-case-detail-heading">
+            <p>EXPEDIENTE #{{ item.id }}</p>
+            <button type="button" class="quiet" (click)="close()">
+                <illari-icon name="arrow" class="client-back-arrow" /> Mis expedientes
+            </button>
+        </div>
+        <div class="client-case-layout">
+            <div>
+                <section class="client-case-box">
+                    <div class="client-case-title">
+                        <span class="client-case-symbol"><illari-icon name="briefcase" /></span
+                        ><span class="client-case-status" [class.closed]="closed(item)">{{ item.estado }}</span>
+                    </div>
+                    <h2>{{ item.nombreCaso }}</h2>
+                    @if (item.referencia) {
+                        <span class="client-reference">Expediente de referencia</span>
+                    }
+                    <p class="client-case-description">
+                        {{
+                            item.descripcion || 'El profesional responsable registrará aquí el alcance de tu atención.'
+                        }}
+                    </p>
+                    <dl class="client-case-metadata">
+                        <div>
+                            <dt>Fecha de apertura</dt>
+                            <dd>{{ date(item.fechaApertura) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Próxima audiencia</dt>
+                            <dd>{{ date(item.fechaAudiencia) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Honorarios registrados</dt>
+                            <dd>{{ money(item.tarifa) }}</dd>
+                        </div>
+                        <div>
+                            <dt>Titular del expediente</dt>
+                            <dd>{{ item.clienteNombre }}</dd>
+                        </div>
+                    </dl>
+                    <p class="client-case-footnote">
+                        Los pagos y comprobantes de tus servicios se consultan en Mis pedidos.
+                    </p>
+                </section>
+                <section class="client-case-box">
+                    <header class="client-case-box-heading">
+                        <div>
+                            <h2>Documentos de mi expediente</h2>
+                            <p>Archivos incorporados por el equipo responsable.</p>
+                        </div>
+                        <button
+                            type="button"
+                            class="quiet"
+                            [disabled]="documentLoading()"
+                            (click)="loadDocuments(item.id)"
+                        >
+                            <illari-icon name="refresh" /> Actualizar
+                        </button>
+                    </header>
+                    @if (documentError()) {
+                        <p class="client-case-alert" role="alert">{{ documentError() }}</p>
+                    }
+                    @if (documentLoading()) {
+                        <p class="client-case-inline" role="status">Consultando documentos…</p>
+                    } @else {
+                        <ul class="client-case-documents">
+                            @for (file of documents(); track file.id) {
+                                <li>
+                                    <span class="client-case-file"><illari-icon name="file" /></span>
+                                    <div>
+                                        <h3>{{ file.nombre }}</h3>
+                                        <p>{{ file.tipoArchivo.toUpperCase() }} · {{ size(file.tamanoArchivo) }}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="quiet"
+                                        [attr.aria-label]="'Descargar ' + file.nombre"
+                                        [disabled]="downloading() !== null"
+                                        (click)="download(file)"
+                                    >
+                                        <illari-icon name="download" />{{
+                                            downloading() === file.id ? 'Descargando…' : 'Descargar'
+                                        }}
+                                    </button>
+                                </li>
+                            } @empty {
+                                @if (!documentError()) {
+                                    <li class="client-case-inline">
+                                        Los documentos aparecerán aquí cuando el profesional los incorpore al
+                                        expediente.
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    }
+                </section>
+            </div>
+            <aside>
+                <section class="client-case-contact">
+                    <span class="client-case-symbol"><illari-icon name="scale" /></span>
+                    <p>PROFESIONAL RESPONSABLE</p>
+                    <h2>{{ item.abogadoNombre }}</h2>
+                    <dl>
+                        <div>
+                            <dt>Correo de contacto</dt>
+                            <dd>{{ item.abogadoEmail || 'Por coordinar' }}</dd>
+                        </div>
+                        <div>
+                            <dt>Teléfono</dt>
+                            <dd>{{ item.abogadoTelefono || 'Por coordinar' }}</dd>
+                        </div>
+                    </dl>
+                </section>
+                <div class="client-case-security">
+                    <illari-icon name="shield" />
+                    <p>Este espacio reúne exclusivamente los expedientes asignados a tu cuenta.</p>
+                </div>
+            </aside>
+        </div>
+    } @else {
+        <section class="client-case-summary" aria-label="Resumen de expedientes">
+            <article>
+                <illari-icon name="briefcase" />
+                <div>
+                    <p>Mis expedientes</p>
+                    <strong>{{ loading() || error() ? '—' : cases().length }}</strong>
+                </div>
+            </article>
+            <article>
+                <illari-icon name="clock" />
+                <div>
+                    <p>En seguimiento</p>
+                    <strong>{{ loading() || error() ? '—' : active().length }}</strong>
+                </div>
+            </article>
+            <article>
+                <illari-icon name="calendar" />
+                <div>
+                    <p>Audiencias próximas</p>
+                    <strong>{{ loading() || error() ? '—' : hearings().length }}</strong>
+                </div>
+            </article>
+        </section>
+        <section class="client-case-box">
+            <header class="client-case-box-heading">
+                <div>
+                    <h2>El avance de tus asuntos</h2>
+                    <p>Selecciona un expediente para conocer sus detalles y documentos.</p>
+                </div>
+            </header>
+            <div class="client-case-tools">
+                <div>
+                    <illari-icon name="search" /><input
+                        type="search"
+                        aria-label="Buscar mis expedientes"
+                        placeholder="Buscar por asunto o profesional…"
+                        [value]="search()"
+                        (input)="searchInput($event)"
+                    />
+                </div>
+                <select aria-label="Filtrar mis expedientes" [value]="filter()" (change)="filterInput($event)">
+                    <option value="all">Todos los estados</option>
+                    <option value="active">En seguimiento</option>
+                    <option value="closed">Concluidos</option>
+                </select>
+            </div>
+            @if (loading()) {
+                <div class="client-case-empty" role="status">
+                    <illari-icon name="refresh" />
+                    <h2>Preparando tus expedientes…</h2>
+                </div>
+            } @else if (filtered().length) {
+                <ul class="client-case-list">
+                    @for (item of filtered(); track item.id) {
+                        <li>
+                            <span class="client-case-file"><illari-icon name="file" /></span>
+                            <div>
+                                <h3>{{ item.nombreCaso }}</h3>
+                                <p>#{{ item.id }} · {{ item.abogadoNombre }}</p>
+                                @if (item.referencia) {
+                                    <span class="client-reference">Referencia</span>
+                                }
+                            </div>
+                            <span class="client-case-status" [class.closed]="closed(item)">{{ item.estado }}</span
+                            ><button
+                                type="button"
+                                class="quiet"
+                                [attr.aria-label]="'Ver mi expediente ' + item.id"
+                                (click)="open(item.id)"
+                            >
+                                Ver expediente <illari-icon name="arrow" />
+                            </button>
+                        </li>
+                    }
+                </ul>
+            } @else if (!error()) {
+                <div class="client-case-empty">
+                    <illari-icon name="briefcase" />
+                    <h2>{{ cases().length ? 'No encontramos coincidencias' : 'Tu atención comienza aquí' }}</h2>
+                    <p>
+                        {{
+                            cases().length
+                                ? 'Busca por otro asunto o selecciona un estado diferente.'
+                                : 'Cuando el estudio abra un expediente a tu nombre, podrás seguirlo desde este espacio.'
+                        }}
+                    </p>
+                    @if (!cases().length) {
+                        <button type="button" class="quiet" (click)="purchase.emit()">
+                            Explorar servicios <illari-icon name="arrow" />
+                        </button>
+                    }
+                </div>
+            }
+        </section>
+    }
+    <footer class="client-case-footer">
+        <span>ILLARI LEGAL / Mis expedientes</span
+        ><span><illari-icon name="shield" /> Información de tu atención legal</span>
+    </footer>
+</main>

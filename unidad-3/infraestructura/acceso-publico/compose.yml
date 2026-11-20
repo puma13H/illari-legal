@@ -1,0 +1,56 @@
+services:
+  keycloak:
+    environment:
+      KC_HOSTNAME: ${ILLARI_PUBLIC_URL:-http://localhost:18180}
+      KC_HOSTNAME_ADMIN: ${KEYCLOAK_PUBLIC_URL:-http://localhost:18180}
+      KC_PROXY_HEADERS: xforwarded
+
+  legal-gateway:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+      ILLARI_CORS_ALLOWED_ORIGINS: ${FRONTEND_PUBLIC_URL:-http://localhost:4200},${ILLARI_PUBLIC_URL:-http://localhost:4200}
+  cliente-ms:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+  servicio-legal-ms:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+  orden-legal-ms:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+  pago-ms:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+  backend-legacy:
+    environment:
+      KEYCLOAK_ISSUER_URI: ${ILLARI_PUBLIC_URL:-http://localhost:18180}/realms/illari-legal
+      ILLARI_CORS_ALLOWED_ORIGINS: ${FRONTEND_PUBLIC_URL:-http://localhost:4200},${ILLARI_PUBLIC_URL:-http://localhost:4200}
+
+  checkout-web:
+    environment:
+      CHECKOUT_KEYCLOAK_ORIGIN: ${ILLARI_PUBLIC_URL:-http://localhost:18180}
+
+  publico-entrada:
+    container_name: ${ILLARI_CONTAINER_PREFIX:-illari}-acceso-publico
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    environment:
+      ILLARI_PUBLIC_HOST: ${ILLARI_PUBLIC_HOST:-pendiente.invalid}
+      NGINX_ENVSUBST_FILTER: '^ILLARI_PUBLIC_HOST$$'
+    volumes:
+      - ./infraestructura/acceso-publico/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+    networks: [legal-net]
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:8080/salud"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  publico-tunel:
+    container_name: ${ILLARI_CONTAINER_PREFIX:-illari}-enlace-https
+    image: cloudflare/cloudflared:latest
+    restart: "no"
+    command: ["tunnel", "--no-autoupdate", "--protocol", "http2", "--url", "http://publico-entrada:8080"]
+    depends_on:
+      publico-entrada: {condition: service_healthy}
+    networks: [legal-net]

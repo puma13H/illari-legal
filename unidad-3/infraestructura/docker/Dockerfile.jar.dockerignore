@@ -1,0 +1,14 @@
+**
+!backend/
+!backend/microservicios/
+!backend/microservicios/*/
+!backend/microservicios/*/target/
+!backend/microservicios/*/target/*.jar
+!infraestructura/
+!infraestructura/*/
+!infraestructura/*/target/
+!infraestructura/*/target/*.jar
+!backend/expedientes/
+!backend/expedientes/target/
+!backend/expedientes/target/*.jar
+

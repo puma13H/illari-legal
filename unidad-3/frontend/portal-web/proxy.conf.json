@@ -1,0 +1,8 @@
+{
+  "/api/v1/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true },
+  "/api/casos/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true },
+  "/api/documentos/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true },
+  "/api/abogados/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true },
+  "/api/clientes/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true },
+  "/api/registros/**": { "target": "http://127.0.0.1:18080", "changeOrigin": true }
+}

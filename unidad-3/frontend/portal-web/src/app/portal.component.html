@@ -1,0 +1,364 @@
+<div
+    [class.client-shell]="client() || lawyer() || admin()"
+    [class.admin-shell]="admin()"
+    [class.welcome-shell]="view() === 'login' || view() === 'loading'"
+>
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark"><illari-icon name="scale" /></span>
+            <div class="wordmark">ILLARI <span>LEGAL</span></div>
+        </div>
+        @if (authenticated()) {
+            <div class="header-actions">
+                @if (admin()) {
+                    <nav class="client-nav" aria-label="Navegación de administración">
+                        <button
+                            type="button"
+                            [attr.aria-current]="adminSection() === 'home' ? 'page' : null"
+                            (click)="openAdminSection('home')"
+                        >
+                            Inicio
+                        </button>
+                        <button
+                            type="button"
+                            [attr.aria-current]="adminSection() === 'services' ? 'page' : null"
+                            (click)="openAdminSection('services')"
+                        >
+                            Servicios
+                        </button>
+                        <button
+                            type="button"
+                            [attr.aria-current]="adminSection() === 'cases' ? 'page' : null"
+                            (click)="openAdminSection('cases')"
+                        >
+                            Expedientes
+                        </button>
+                        <button type="button" [attr.aria-current]="adminSection() === 'requests' ? 'page' : null" (click)="openAdminSection('requests')">Solicitudes</button>
+                        <button
+                            type="button"
+                            [attr.aria-current]="adminSection() === 'team' ? 'page' : null"
+                            (click)="openAdminSection('team')"
+                        >
+                            Equipo
+                        </button>
+                    </nav>
+                } @else if (client()) {
+                    <nav class="client-nav client-area-nav" aria-label="Navegación del cliente">
+                        <button
+                            type="button"
+                            [disabled]="busy()"
+                            [attr.aria-current]="view() === 'client-home' ? 'page' : null"
+                            (click)="clientHome()"
+                        >
+                            Inicio
+                        </button>
+                        <button
+                            type="button"
+                            [disabled]="busy()"
+                            [attr.aria-current]="['catalog', 'pay', 'pending', 'paid'].includes(view()) ? 'page' : null"
+                            (click)="newOrder()"
+                        >
+                            Servicios
+                        </button>
+                        <button
+                            type="button"
+                            [disabled]="busy()"
+                            [attr.aria-current]="view() === 'orders' ? 'page' : null"
+                            (click)="openClientOrders()"
+                        >
+                            Mis pedidos
+                        </button>
+                        <button
+                            type="button"
+                            [disabled]="busy()"
+                            [attr.aria-current]="view() === 'client-cases' ? 'page' : null"
+                            (click)="openClientCases()"
+                        >
+                            Mis expedientes
+                        </button>
+                    </nav>
+                } @else if (lawyer()) {
+                    <nav class="client-nav" aria-label="Navegación del abogado">
+                        <button
+                            type="button"
+                            [attr.aria-current]="lawyerSection() === 'home' ? 'page' : null"
+                            (click)="openLawyerSection('home')"
+                        >
+                            Inicio
+                        </button>
+                        <button
+                            type="button"
+                            [attr.aria-current]="lawyerSection() === 'cases' ? 'page' : null"
+                            (click)="openLawyerSection('cases')"
+                        >
+                            Mis casos
+                        </button>
+                        <button
+                            type="button"
+                            [attr.aria-current]="lawyerSection() === 'agenda' ? 'page' : null"
+                            (click)="openLawyerSection('agenda')"
+                        >
+                            Agenda
+                        </button>
+                    </nav>
+                }
+                @if (client() || lawyer() || admin()) {
+                    <div class="client-identity">
+                        <span class="client-avatar" aria-hidden="true">{{ initials() }}</span>
+                        <div>
+                            <strong>{{ clientName() }}</strong
+                            ><span>{{ admin() ? 'Administrador' : lawyer() ? 'Abogado' : 'Cliente' }}</span>
+                        </div>
+                    </div>
+                }
+                <button
+                    type="button"
+                    class="quiet logout-button"
+                    aria-label="Cerrar sesión"
+                    [disabled]="busy() || adminWorking()"
+                    (click)="logout()"
+                >
+                    <illari-icon name="logout" /><span>Cerrar sesión</span>
+                </button>
+            </div>
+        } @else {
+            <p class="welcome-header-note"><illari-icon name="shield" /> Portal de servicios</p>
+        }
+    </header>
+
+    @if (view() === 'login' || view() === 'loading') {
+        <illari-welcome
+            [initializing]="view() === 'loading'"
+            [redirecting]="openingLogin()"
+            [notice]="notice()"
+            (signIn)="login()"
+            (retry)="reloadPage()"
+        />
+    } @else if (view() === 'admin') {
+        <illari-admin-panel
+            [section]="adminSection()"
+            [displayName]="clientName()"
+            (navigate)="adminSection.set($event)"
+            (sessionExpired)="expireSession()"
+        />
+    } @else if (view() === 'lawyer') {
+        <illari-lawyer-panel
+            [section]="lawyerSection()"
+            [displayName]="clientName()"
+            (navigate)="openLawyerSection($event)"
+            (sessionExpired)="expireSession()"
+        />
+    } @else if (view() === 'client-cases') {
+        <illari-client-cases (purchase)="newOrder()" (sessionExpired)="expireSession()" />
+    } @else if (view() === 'client-home' || view() === 'orders') {
+        <illari-client-panel
+            [showingOrders]="view() === 'orders'"
+            [loading]="busy()"
+            [orders]="clientOrders()"
+            [notice]="notice()"
+            [displayName]="clientName()"
+            (purchase)="newOrder()"
+            (viewOrders)="openClientOrders()"
+            (refresh)="refreshClientOrders()"
+            (reviewOrder)="openClientOrder($event)"
+        >
+        </illari-client-panel>
+    } @else if (client() && view() === 'catalog') {
+        <illari-service-catalog
+            [services]="services()"
+            [loading]="busy()"
+            [notice]="notice()"
+            [yapeMinCentimos]="yapeMinCentimos()"
+            (continueToPayment)="orderCatalogServices($event)"
+            (reload)="newOrder()"
+        />
+    } @else {
+        <main class="checkout">
+            <section class="summary" aria-labelledby="checkout-title">
+                <span class="method">Yape</span>
+                <h1 id="checkout-title">Pago de <br />servicios legales</h1>
+                @if (order(); as pedido) {
+                    <div class="summary-order">
+                        @if (pedido.detalles.length > 1) {
+                            <p class="checkout-item-count">{{ pedido.detalles.length }} servicios en este pedido</p>
+                            <ul class="checkout-items">
+                                @for (item of pedido.detalles; track $index) {
+                                    <li>
+                                        <span
+                                            >{{ serviceName(item.nombreServicio) }}
+                                            @if (item.cantidad && item.cantidad > 1) {
+                                                <span>× {{ item.cantidad }}</span>
+                                            }
+                                        </span>
+                                        @if (item.subtotal !== undefined) {
+                                            <strong>{{ format(item.subtotal) }}</strong>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        } @else {
+                            <p>{{ summaryName(pedido) }}</p>
+                        }
+                        <p class="order-number">Pedido #{{ pedido.id }}</p>
+                    </div>
+                    <div class="summary-total">
+                        <span>{{ view() === 'paid' ? 'Total pagado' : 'Total a pagar' }}</span>
+                        <strong id="total">{{ format(pedido.total) }}</strong>
+                    </div>
+                }
+            </section>
+
+            <div class="content">
+                <p
+                    class="notice"
+                    role="status"
+                    aria-live="polite"
+                    [hidden]="!notice().message"
+                    [attr.data-error]="notice().error"
+                >
+                    {{ notice().message }}
+                </p>
+
+                @switch (view()) {
+                    @case ('pay') {
+                        @if (paymentConfig(); as config) {
+                            <section>
+                                <h2>Paga con Yape</h2>
+                                <p>Genera un código de aprobación de seis dígitos desde la app de Yape.</p>
+                                @if (config.entorno === 'test') {
+                                    <p class="test-info">
+                                        <strong>Entorno de validación · sin cobros reales</strong><br />Usa el celular
+                                        <b>111111111</b> y el código <b>123456</b>.
+                                    </p>
+                                } @else {
+                                    <p class="live-info">
+                                        Se cobrará {{ format(config.montoCentimos / 100) }} a tu Yape.
+                                    </p>
+                                }
+                                <form [formGroup]="checkout" (ngSubmit)="pay()" autocomplete="off">
+                                    @if (config.entorno === 'live') {
+                                        <div class="field">
+                                            <label for="payment-email">Correo del pagador</label>
+                                            <input
+                                                id="payment-email"
+                                                formControlName="email"
+                                                type="email"
+                                                autocomplete="email"
+                                                maxlength="254"
+                                                required
+                                            />
+                                            @if (checkout.controls.email.touched && checkout.controls.email.invalid) {
+                                                <p class="help">Ingresa un correo válido.</p>
+                                            }
+                                        </div>
+                                    }
+                                    <div class="field">
+                                        <label for="phone">Celular asociado a Yape</label>
+                                        <input
+                                            id="phone"
+                                            formControlName="phone"
+                                            autocomplete="tel-national"
+                                            type="tel"
+                                            inputmode="numeric"
+                                            maxlength="9"
+                                            required
+                                        />
+                                        @if (checkout.controls.phone.touched && checkout.controls.phone.invalid) {
+                                            <p class="help">
+                                                {{
+                                                    config.entorno === 'test'
+                                                        ? 'Usa el celular indicado para este entorno.'
+                                                        : 'Ingresa los nueve dígitos de tu celular.'
+                                                }}
+                                            </p>
+                                        }
+                                    </div>
+                                    <div class="field">
+                                        <label for="otp">Código de aprobación</label>
+                                        <input
+                                            id="otp"
+                                            formControlName="otp"
+                                            type="password"
+                                            inputmode="numeric"
+                                            autocomplete="one-time-code"
+                                            maxlength="6"
+                                            required
+                                        />
+                                        @if (checkout.controls.otp.touched && checkout.controls.otp.invalid) {
+                                            <p class="help">Ingresa el código de seis dígitos.</p>
+                                        }
+                                    </div>
+                                    <button type="submit" [disabled]="busy() || checkout.invalid">
+                                        Pagar {{ format(config.montoCentimos / 100) }}
+                                    </button>
+                                </form>
+                            </section>
+                        }
+                    }
+                    @case ('pending') {
+                        <section>
+                            <h2>Estado del pago</h2>
+                            @if (canCheck()) {
+                                <button type="button" [disabled]="busy()" (click)="openOrder()">
+                                    Consultar estado
+                                </button>
+                            }
+                        </section>
+                    }
+                    @case ('paid') {
+                        <section>
+                            <h2>Pago acreditado</h2>
+                            <p>El pago de tu pedido fue confirmado.</p>
+                            @if (receipt(); as id) {
+                                <p id="receipt" class="receipt">Operación {{ id }}</p>
+                            }
+                            @if (resourceLoading()) {
+                                <p class="help" role="status">Consultando los recursos de tu pedido…</p>
+                            }
+                            @if (resourceError()) {
+                                <div class="resource-error" role="status">
+                                    <p>
+                                        No se pudieron consultar los recursos. Puedes volver a intentarlo sin repetir el
+                                        pago.
+                                    </p>
+                                    <button type="button" class="quiet" (click)="loadResources()">
+                                        Consultar recursos
+                                    </button>
+                                </div>
+                            }
+                            @for (resource of resources(); track resource.codigo) {
+                                <div class="paid-resource">
+                                    <illari-icon name="file" />
+                                    <div>
+                                        <h3>{{ resource.titulo }}</h3>
+                                        <p>{{ resource.disponible ? 'Tu recurso digital está disponible en PDF.' : 'El recurso está pendiente de entrega. Contacta al estudio.' }}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="quiet"
+                                        [disabled]="downloadingGuide() || !resource.disponible"
+                                        (click)="downloadResource(resource)"
+                                    >
+                                        <illari-icon name="download" />{{
+                                            downloadingGuide() ? 'Descargando…' : resource.codigo === 'guia-bienvenida' ? 'Descargar guía' : 'Descargar PDF'
+                                        }}
+                                    </button>
+                                </div>
+                            }
+                            @if (hasAdvisory()) {
+                                <div class="paid-resource"><illari-icon name="briefcase" /><div><h3>Tu asesoría está contratada</h3><p>El estudio asignará un abogado. Podrás consultar el expediente y sus documentos desde tu cuenta.</p><button type="button" class="quiet" (click)="openClientCases()">Mis expedientes</button></div></div>
+                            }
+                            <button type="button" (click)="newOrder()">Explorar otros servicios</button>
+                        </section>
+                    }
+                }
+
+                @if (view() === 'pay' || view() === 'pending') {
+                    <button type="button" class="quiet back" [disabled]="busy()" (click)="newOrder()">
+                        Elegir otro servicio
+                    </button>
+                }
+            </div>
+        </main>
+    }
+</div>

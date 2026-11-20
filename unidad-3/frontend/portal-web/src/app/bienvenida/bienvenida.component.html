@@ -1,0 +1,47 @@
+<main class="welcome-page">
+    <section class="welcome-card" aria-labelledby="welcome-title">
+        <div class="welcome-intro">
+            <img class="welcome-photo" src="/assets/images/illari-legal-welcome-v2-1122.jpg" srcset="/assets/images/illari-legal-welcome-v2-640.jpg 640w, /assets/images/illari-legal-welcome-v2-1122.jpg 1122w" sizes="(max-width: 720px) calc(100vw - 32px), (max-width: 1000px) 50vw, 638px" width="1122" height="1402" alt="Balanza de justicia y libros jurídicos sobre el escritorio de un despacho." fetchpriority="high">
+            <div class="welcome-intro-copy">
+                <p class="welcome-eyebrow"><span></span> ASESORÍA Y GESTIÓN LEGAL</p>
+                <h1 id="welcome-title">Tus servicios legales,<br> <span>en un solo lugar.</span></h1>
+                <p class="welcome-description">La tranquilidad de tener tus servicios, pedidos y pagos siempre a tu alcance.</p>
+            </div>
+            <p class="welcome-intro-footnote"><span class="welcome-photo-mark"><illari-icon name="scale" /></span><span><strong>ILLARI LEGAL</strong><span>Cerca de ti, en cada paso.</span></span></p>
+        </div>
+
+        <section class="welcome-access" aria-labelledby="access-title" [attr.aria-busy]="(initializing() && !notice().error) || redirecting()">
+            <div class="welcome-access-heading"><span class="welcome-access-icon"><illari-icon name="shield" /></span><p class="access-eyebrow">TU PORTAL PERSONAL</p></div>
+            <h2 id="access-title">Accede a tu<br> espacio legal.</h2>
+            <p class="access-description">Tus servicios, expedientes y documentos, organizados en una cuenta personal.</p>
+
+            <div class="welcome-access-summary"><illari-icon name="briefcase" /><span>Consulta tus servicios y da seguimiento a tus pedidos.</span></div>
+
+            <div class="welcome-feedback" role="status" aria-live="polite" [hidden]="!notice().error">
+                <p>{{ notice().message }}</p>
+                @if (initializing()) { <button type="button" class="quiet" (click)="retry.emit()">Volver a intentar</button> }
+            </div>
+
+            <button type="button" class="welcome-signin" [disabled]="initializing() || redirecting()" (click)="signIn.emit()">
+                <span>{{ initializing() ? (notice().error ? 'Acceso no disponible' : 'Preparando acceso…') : redirecting() ? 'Abriendo inicio de sesión…' : 'Iniciar sesión' }}</span>
+                @if ((initializing() && !notice().error) || redirecting()) { <span class="welcome-spinner" aria-hidden="true"></span> } @else { <illari-icon name="arrow" /> }
+            </button>
+            <p class="welcome-session-note"><illari-icon name="shield" /> Ingresa con tu usuario y contraseña</p>
+
+            <div class="welcome-profiles">
+                <p>Un acceso, un espacio para cada perfil</p>
+                <ul aria-label="Perfiles del portal"><li>Cliente</li><li>Abogado</li><li>Administrador</li></ul>
+                <span>Al ingresar verás las opciones disponibles para tu cuenta.</span>
+            </div>
+
+            <div class="welcome-account-help"><span><illari-icon name="file" /></span><div><h3>¿Necesitas una cuenta?</h3><p>Solicita tus datos de acceso al administrador de ILLARI LEGAL.</p></div></div>
+        </section>
+    </section>
+
+    <ul class="welcome-features" aria-label="Funciones del portal">
+        <li><span class="welcome-feature-icon"><illari-icon name="scale" /></span><div><h2>Asesoría a tu alcance</h2><p>Encuentra servicios, documentos y recursos para tus necesidades legales.</p></div></li>
+        <li><span class="welcome-feature-icon"><illari-icon name="briefcase" /></span><div><h2>Todo en orden</h2><p>Consulta tu historial y el estado de tus pedidos cuando lo necesites.</p></div></li>
+        <li><span class="welcome-feature-icon"><illari-icon name="check" /></span><div><h2>Paga con Yape</h2><p>Revisa el detalle de tus servicios y confirma el importe antes de pagar.</p></div></li>
+    </ul>
+    <footer class="welcome-footer"><span>ILLARI LEGAL <span>/</span> Portal de servicios</span><span>Servicios, pedidos y pagos en un mismo espacio.</span></footer>
+</main>

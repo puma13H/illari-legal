@@ -1,0 +1,110 @@
+<main class="client-panel" [attr.aria-busy]="loading()">
+    <illari-page-banner eyebrow="MI ESPACIO LEGAL" [compact]="showingOrders()"
+        [title]="showingOrders() ? 'Mis pedidos' : 'Hola, ' + firstName() + '.'"
+        [description]="showingOrders() ? 'Tus servicios contratados y el estado de cada pago, siempre a la mano.' : 'Encuentra la asesoría que necesitas y gestiona tus servicios con tranquilidad.'">
+        <button type="button" class="new-service banner-primary" [disabled]="loading()" (click)="purchase.emit()">
+            Contratar un servicio <illari-icon name="arrow" />
+        </button>
+    </illari-page-banner>
+
+    <div class="panel-notice" role="status" aria-live="polite" [hidden]="!notice().message || loading()" [class.has-error]="notice().error">
+        <p>{{ notice().message }}</p>
+        @if (notice().error) { <button type="button" class="quiet" (click)="refresh.emit()">Volver a intentar</button> }
+    </div>
+
+    <section class="account-summary" aria-label="Resumen de tus pedidos">
+        <div class="stat-card">
+            <span class="stat-icon"><illari-icon name="briefcase" /></span>
+            <div><p>Pedidos registrados</p><strong>{{ loading() || notice().error ? '—' : orders().length }}</strong><span>Tu historial de servicios</span></div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon amber"><illari-icon name="clock" /></span>
+            <div><p>Pendientes de pago</p><strong>{{ loading() || notice().error ? '—' : pending().length }}</strong><span>{{ loading() || notice().error ? 'Consultando información' : amount(pendingTotal()) + ' por completar' }}</span></div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-icon green"><illari-icon name="check" /></span>
+            <div><p>Pedidos pagados</p><strong>{{ loading() || notice().error ? '—' : paid().length }}</strong><span>{{ loading() || notice().error ? 'Consultando información' : amount(paidTotal()) + ' en pagos confirmados' }}</span></div>
+        </div>
+    </section>
+
+    <div [class.dashboard-grid]="!showingOrders()">
+        <section class="activity-card" aria-labelledby="activity-title">
+            <header class="section-heading">
+                <div>
+                    <h2 id="activity-title">{{ showingOrders() ? 'Historial de pedidos' : 'Actividad reciente' }}</h2>
+                    <p>{{ showingOrders() ? 'Encuentra un pedido por su número o servicio.' : 'Los últimos movimientos de tu cuenta.' }}</p>
+                </div>
+                @if (showingOrders()) {
+                    <button type="button" class="quiet refresh-button" [disabled]="loading()" (click)="refresh.emit()"><illari-icon name="refresh" /><span>Actualizar</span></button>
+                } @else {
+                    <button type="button" class="text-button" [disabled]="loading()" (click)="viewOrders.emit()">Ver todos <illari-icon name="arrow" /></button>
+                }
+            </header>
+
+            @if (showingOrders()) {
+                <div class="order-tools">
+                    <div class="order-search">
+                        <illari-icon name="search" />
+                        <input id="order-search" type="search" aria-label="Buscar pedidos por número o servicio" placeholder="Buscar por número o servicio…" [value]="search()" (input)="searchOrders($event)" [disabled]="loading()">
+                    </div>
+                    <div class="order-filters" role="group" aria-label="Filtrar pedidos por estado">
+                        @for (option of filters; track option.id) {
+                            <button type="button" [attr.aria-pressed]="filter() === option.id" [disabled]="loading()" (click)="filter.set(option.id)">{{ option.label }}</button>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (loading()) {
+                <div class="loading-orders" role="status"><span class="loading-line"></span><span class="loading-line"></span><span class="loading-line"></span><p>Cargando tus pedidos…</p></div>
+            } @else if (notice().error) {
+                <div class="empty-orders"><illari-icon name="refresh" /><h3>No pudimos consultar tus pedidos</h3><p>Puedes volver a intentarlo desde esta página.</p></div>
+            } @else if (visibleOrders().length) {
+                <div class="order-columns" aria-hidden="true"><span>Servicio / pedido</span><span>Estado</span><span>Importe</span><span></span></div>
+                <ul class="orders-list">
+                    @for (order of visibleOrders(); track order.id) {
+                        <li class="order-row">
+                            <div class="order-service">
+                                <span class="document-icon"><illari-icon name="file" /></span>
+                                <div><h3>{{ serviceTitle(order) }}</h3><p>Pedido #{{ order.id }} @if (dateLabel(order.fechaCreacion); as date) { <span> · {{ date }}</span> }</p></div>
+                            </div>
+                            <span class="status-badge" [class.paid]="order.estado === 'PAGADA'" [class.pending]="order.estado === 'PENDIENTE_PAGO'">{{ statusLabel(order.estado) }}</span>
+                            <strong class="order-amount">{{ amount(order.total) }}</strong>
+                            @if (action(order); as label) {
+                                <button type="button" class="text-button order-action" [attr.aria-label]="label + ' del pedido ' + order.id" (click)="reviewOrder.emit(order.id)">{{ label }} <illari-icon name="arrow" /></button>
+                            } @else { <span class="no-action">Sin acciones</span> }
+                        </li>
+                    }
+                </ul>
+                <footer class="list-footer">{{ showingOrders() ? visibleOrders().length + ' de ' + orders().length + ' pedidos' : 'Mostrando tus ' + visibleOrders().length + ' pedidos más recientes' }}</footer>
+            } @else if (orders().length) {
+                <div class="empty-orders"><illari-icon name="search" /><h3>No encontramos coincidencias</h3><p>Busca por otro servicio, número de pedido o estado.</p><button type="button" class="quiet" (click)="clearFilters()">Limpiar filtros</button></div>
+            } @else {
+                <div class="empty-orders"><illari-icon name="briefcase" /><h3>Tu primer servicio empieza aquí</h3><p>Cuando contrates un servicio, podrás seguir su pago desde este espacio.</p><button type="button" class="quiet" (click)="purchase.emit()">Explorar servicios <illari-icon name="arrow" /></button></div>
+            }
+        </section>
+
+        @if (!showingOrders()) {
+            <aside class="client-guide">
+                <section class="service-callout">
+                    <img class="client-callout-photo" src="/assets/images/portada-asesoria-640.jpg" width="640" height="427" alt="Escritorio de atención jurídica con libros y documentos." loading="lazy">
+                    <span class="callout-icon"><illari-icon name="scale" /></span>
+                    <p class="eyebrow">SERVICIOS LEGALES</p>
+                    <h2>Da el siguiente paso con tranquilidad.</h2>
+                    <p>Revisa nuestros servicios y elige el que necesitas. Conocerás el importe antes de pagar.</p>
+                    <button type="button" [disabled]="loading()" (click)="purchase.emit()">Ver catálogo <illari-icon name="arrow" /></button>
+                </section>
+                <section class="steps-card" aria-labelledby="steps-title">
+                    <h2 id="steps-title">¿Cómo contratar?</h2>
+                    <ol><li><strong>Elige tu servicio</strong><span>Consulta la descripción y el precio.</span></li><li><strong>Completa el pago</strong><span>Usa tu celular y código de Yape.</span></li><li><strong>Consulta tu pedido</strong><span>Revisa la confirmación en tu historial.</span></li></ol>
+                </section>
+            </aside>
+        }
+    </div>
+
+    @if (!showingOrders() && !loading() && !notice().error && pending().length) {
+        <section class="pending-reminder"><span class="reminder-icon"><illari-icon name="clock" /></span><div><h2>{{ pending().length === 1 ? 'Tienes un pedido pendiente de pago' : 'Tienes ' + pending().length + ' pedidos pendientes de pago' }}</h2><p>Puedes retomar el pago desde tu historial cuando estés listo.</p></div><button type="button" class="quiet" (click)="viewOrders.emit()">Revisar pedidos <illari-icon name="arrow" /></button></section>
+    }
+
+    <footer class="client-footer"><span>ILLARI LEGAL <span class="footer-separator">/</span> Portal del cliente</span><span><illari-icon name="shield" /> Acceso personal a tus pedidos</span></footer>
+</main>

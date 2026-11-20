@@ -1,0 +1,15 @@
+.git/
+.idea/
+.vscode/
+credenciales/
+respaldos/
+output/
+.venv/
+*.log
+**/node_modules/
+**/target/
+**/dist/
+**/.angular/
+**/__pycache__/
+**/uploads/
+**/data/

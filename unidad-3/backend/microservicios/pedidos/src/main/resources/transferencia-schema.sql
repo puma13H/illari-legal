@@ -1,0 +1,1 @@
+ALTER TABLE ordenes_legales ADD COLUMN IF NOT EXISTS transferencia_real BOOLEAN NOT NULL DEFAULT FALSE;

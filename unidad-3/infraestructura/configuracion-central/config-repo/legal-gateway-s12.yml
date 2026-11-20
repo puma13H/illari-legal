@@ -1,0 +1,15 @@
+server:
+  port: 18080
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    service-url:
+      defaultZone: http://legal-eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+spring:
+  cloud:
+    loadbalancer:
+      cache:
+        ttl: 5s
+

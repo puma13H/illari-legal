@@ -1,0 +1,2 @@
+# Solo se necesita para regenerar la guía PDF; el portal entrega el PDF ya incluido.
+reportlab==5.1.0

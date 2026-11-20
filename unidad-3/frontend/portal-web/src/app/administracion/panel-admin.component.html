@@ -1,0 +1,551 @@
+<main class="admin-panel" [attr.aria-busy]="loading()">
+    <illari-page-banner
+        eyebrow="ADMINISTRACIÓN DE ILLARI LEGAL"
+        image="expedientes"
+        [compact]="section() !== 'home'"
+        [title]="
+            section() === 'home'
+                ? 'Hola, ' + firstName() + '.'
+                : section() === 'services'
+                  ? 'Gestión de servicios'
+                  : section() === 'cases'
+                    ? 'Expedientes del estudio'
+                    : section() === 'requests' ? 'Solicitudes contratadas' : 'Equipo y clientes'
+        "
+        [description]="
+            section() === 'home'
+                ? 'Una vista clara de los servicios, expedientes y personas de tu estudio.'
+                : section() === 'services'
+                  ? 'Mantén al día las descripciones, precios y disponibilidad del catálogo.'
+                  : section() === 'cases'
+                    ? 'Registra los casos, asigna responsables y consulta los documentos del estudio.'
+                    : section() === 'requests' ? 'Asigna un abogado a las asesorías con pago confirmado.' : 'Registra personas, habilita sus accesos y mantén sus datos de contacto.'
+        "
+    >
+        <button type="button" class="banner-secondary" [disabled]="loading() || working()" (click)="load()">
+            <illari-icon name="refresh" /> Actualizar información
+        </button>
+    </illari-page-banner>
+
+    @if (message()) {
+        <p class="admin-alert success" role="status"><illari-icon name="check" />{{ message() }}</p>
+    }
+    @if (failures().services || failures().cases || failures().team) {
+        <div class="admin-alert error" role="alert">
+            <illari-icon name="refresh" />
+            <div>
+                @if (failures().services) {
+                    <p>{{ failures().services }}</p>
+                }
+                @if (failures().cases) {
+                    <p>{{ failures().cases }}</p>
+                }
+                @if (failures().team) {
+                    <p>{{ failures().team }}</p>
+                }
+            </div>
+            <button type="button" class="quiet" [disabled]="loading()" (click)="load()">Reintentar</button>
+        </div>
+    }
+
+    @if (section() === 'home') {
+        <section class="admin-stats" aria-label="Resumen del estudio">
+            <article>
+                <span class="admin-stat-icon"><illari-icon name="scale" /></span>
+                <p>Servicios activos</p>
+                <strong>{{ loading() || failures().services ? '—' : activeServices().length }}</strong
+                ><span>Con disponibilidad activa</span>
+            </article>
+            <article>
+                <span class="admin-stat-icon amber"><illari-icon name="briefcase" /></span>
+                <p>Casos en seguimiento</p>
+                <strong>{{ loading() || failures().cases ? '—' : activeCases().length }}</strong
+                ><span>Expedientes sin cerrar</span>
+            </article>
+            <article>
+                <span class="admin-stat-icon green"><illari-icon name="shield" /></span>
+                <p>Profesionales</p>
+                <strong>{{ loading() || failures().team ? '—' : lawyers().length }}</strong
+                ><span>Abogados registrados</span>
+            </article>
+            <article>
+                <span class="admin-stat-icon"><illari-icon name="file" /></span>
+                <p>Clientes del estudio</p>
+                <strong>{{ loading() || failures().team ? '—' : clients().length }}</strong
+                ><span>Registro de expedientes</span>
+            </article>
+        </section>
+        <div class="admin-home-grid">
+            <section class="admin-box">
+                <header class="admin-box-heading">
+                    <div>
+                        <p class="admin-eyebrow">SEGUIMIENTO GENERAL</p>
+                        <h2>Expedientes recientes</h2>
+                        <p>Casos registrados y profesional responsable.</p>
+                    </div>
+                    <button type="button" class="admin-text-button" (click)="changeSection('cases')">
+                        Ver expedientes <illari-icon name="arrow" />
+                    </button>
+                </header>
+                @if (loading()) {
+                    <div class="admin-empty" role="status">
+                        <illari-icon name="refresh" />
+                        <h3>Consultando información…</h3>
+                    </div>
+                } @else if (!failures().cases && cases().length) {
+                    <ul class="admin-recent-list">
+                        @for (item of cases().slice(0, 5); track item.id) {
+                            <li>
+                                <span class="admin-file-icon"><illari-icon name="file" /></span>
+                                <div>
+                                    <h3>{{ item.nombreCaso }}</h3>
+                                    <p>{{ item.clienteNombre }} · {{ item.abogadoNombre }}</p>
+                                </div>
+                                <span class="admin-badge" [class.closed]="closed(item)">{{ item.estado }}</span>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    <div class="admin-empty">
+                        <illari-icon name="briefcase" />
+                        <h3>{{ failures().cases ? 'Expedientes no disponibles' : 'Todavía no hay expedientes' }}</h3>
+                        <p>
+                            {{
+                                failures().cases
+                                    ? 'Actualiza la información para volver a consultar.'
+                                    : 'Aquí aparecerán los casos registrados en el estudio.'
+                            }}
+                        </p>
+                    </div>
+                }
+            </section>
+            <aside class="admin-shortcuts">
+                <h2>Tu gestión, más simple</h2>
+                <p>Accede directamente al área que necesitas.</p>
+                <button type="button" (click)="changeSection('services')">
+                    <illari-icon name="scale" /><span
+                        ><strong>Administrar catálogo</strong><small>Precios y disponibilidad</small></span
+                    ><illari-icon name="arrow" /></button
+                ><button type="button" (click)="changeSection('cases')">
+                    <illari-icon name="briefcase" /><span
+                        ><strong>Consultar expedientes</strong><small>Casos y documentación</small></span
+                    ><illari-icon name="arrow" /></button
+                ><button type="button" (click)="changeSection('team')">
+                    <illari-icon name="shield" /><span
+                        ><strong>Equipo y clientes</strong><small>Directorio de contactos</small></span
+                    ><illari-icon name="arrow" />
+                </button>
+                <div class="admin-shortcut-photo">
+                    <img
+                        src="/assets/images/portada-asesoria-640.jpg"
+                        width="640"
+                        height="427"
+                        alt="Escritorio preparado para una consulta jurídica."
+                        loading="lazy"
+                    /><span>El estudio, en un solo lugar.</span>
+                </div>
+            </aside>
+        </div>
+    } @else if (section() === 'requests') {
+        <illari-service-requests [lawyers]="lawyers()" (assigned)="requestAssigned($event)" (sessionExpired)="sessionExpired.emit()" (busyChange)="childBusy.set($event)" />
+    } @else if (section() === 'services') {
+        @if (editing()) {
+            <section class="admin-box admin-editor" aria-labelledby="service-editor-title">
+                <header class="admin-box-heading">
+                    <div>
+                        <p class="admin-eyebrow">CATÁLOGO DE SERVICIOS</p>
+                        <h2 id="service-editor-title">
+                            {{ editingId() === null ? 'Nuevo servicio' : 'Editar servicio #' + editingId() }}
+                        </h2>
+                        <p>Los servicios activos con precio mayor a cero se muestran al cliente.</p>
+                    </div>
+                    <button type="button" class="quiet" [disabled]="saving()" (click)="cancelEdit()">Cancelar</button>
+                </header>
+                <form [formGroup]="form" (ngSubmit)="saveService()">
+                    <fieldset [disabled]="saving()">
+                        <div class="admin-form-grid">
+                            <div class="admin-field">
+                                <label for="admin-service-name">Nombre del servicio</label
+                                ><input
+                                    id="admin-service-name"
+                                    formControlName="nombre"
+                                    maxlength="150"
+                                    required
+                                    placeholder="Ej.: Asesoría en derecho civil"
+                                />
+                            </div>
+                            <div class="admin-field">
+                                <label for="admin-service-category">Categoría</label
+                                ><input
+                                    id="admin-service-category"
+                                    formControlName="categoria"
+                                    maxlength="100"
+                                    required
+                                    placeholder="Ej.: Asesorías"
+                                />
+                            </div>
+                            <div class="admin-field">
+                                <label for="admin-service-price">Precio en soles</label
+                                ><input
+                                    id="admin-service-price"
+                                    formControlName="precio"
+                                    type="number"
+                                    min="0"
+                                    max="9999999.99"
+                                    step="0.01"
+                                    required
+                                    placeholder="0.00"
+                                /><span>Usa hasta dos decimales.</span>
+                            </div>
+                            <div class="admin-field">
+                                <label for="admin-service-state">Disponibilidad</label
+                                ><select id="admin-service-state" formControlName="estado">
+                                    <option value="ACTIVO">Activo</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="admin-field">
+                                <label for="admin-service-delivery">Entrega del servicio</label>
+                                <select id="admin-service-delivery" formControlName="tipoEntrega">
+                                    <option value="ASESORIA">Atención por un abogado</option>
+                                    <option value="ARCHIVO">Descarga de un PDF</option>
+                                </select>
+                            </div>
+                            @if (form.controls.tipoEntrega.value === 'ARCHIVO') {
+                                <div class="admin-field wide">
+                                    <label for="admin-service-file">Archivo del recurso (PDF, hasta 10 MB)</label>
+                                    <input id="admin-service-file" type="file" accept="application/pdf,.pdf" (change)="chooseFile($event)" />
+                                    <span>Adjunta el archivo antes de activar el recurso. Si ya tiene PDF, una nueva carga reemplaza la versión para futuras compras; las anteriores conservan su archivo.</span>
+                                    @if (serviceFile(); as file) { <strong>{{ file.name }}</strong> }
+                                    @for (item of services(); track item.id) {
+                                        @if (item.id === editingId() && item.archivoDisponible) { <span>Este servicio ya tiene un PDF disponible.</span> }
+                                    }
+                                </div>
+                            }
+                            <div class="admin-field wide">
+                                <label for="admin-service-description">Descripción</label
+                                ><textarea
+                                    id="admin-service-description"
+                                    formControlName="descripcion"
+                                    rows="3"
+                                    maxlength="2000"
+                                    placeholder="Explica qué incluye el servicio."
+                                ></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    @if (form.touched && form.invalid) {
+                        <p class="admin-form-error" role="alert">
+                            Completa el nombre y la categoría, y revisa que el precio tenga hasta dos decimales.
+                        </p>
+                    }
+                    @if (saveError()) {
+                        <p class="admin-form-error" role="alert">{{ saveError() }}</p>
+                    }
+                    <div class="admin-form-actions">
+                        <button type="submit" [disabled]="saving() || form.invalid">
+                            {{ saving() ? 'Guardando…' : 'Guardar servicio' }}</button
+                        ><button type="button" class="quiet" [disabled]="saving()" (click)="cancelEdit()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </section>
+        }
+        <section class="admin-box">
+            <header class="admin-box-heading">
+                <div>
+                    <h2>Catálogo del estudio</h2>
+                    <p>
+                        {{
+                            loading() || failures().services
+                                ? 'Consultando catálogo'
+                                : services().length + ' servicios registrados'
+                        }}
+                    </p>
+                </div>
+                <button type="button" [disabled]="loading() || saving() || !!failures().services" (click)="edit(null)">
+                    <illari-icon name="file" /> Nuevo servicio
+                </button>
+            </header>
+            <div class="admin-toolbar">
+                <div class="admin-search">
+                    <illari-icon name="search" /><input
+                        type="search"
+                        aria-label="Buscar servicios de administración"
+                        placeholder="Buscar servicio o categoría…"
+                        [value]="search()"
+                        (input)="searchInput($event)"
+                    />
+                </div>
+                <select aria-label="Disponibilidad de servicios" [value]="status()" (change)="statusInput($event)">
+                    <option value="all">Toda disponibilidad</option>
+                    <option value="ACTIVO">Activos</option>
+                    <option value="INACTIVO">Inactivos</option>
+                </select>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Disponibilidad</th>
+                            <th><span class="portal-sr-only">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of visibleServices(); track item.id) {
+                            <tr>
+                                <td data-label="Servicio">
+                                    <strong>{{ item.nombre }}</strong
+                                    ><small>#{{ item.id }}</small>
+                                </td>
+                                <td data-label="Categoría">{{ item.categoria || 'Sin categoría' }}</td>
+                                <td data-label="Precio">
+                                    <strong>{{ amount(item.precio) }}</strong>
+                                </td>
+                                <td data-label="Disponibilidad">
+                                    <span class="admin-badge" [class.closed]="item.estado === 'ACTIVO'">{{
+                                        item.estado === 'ACTIVO' ? 'Activo' : 'Inactivo'
+                                    }}</span>
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="admin-text-button"
+                                        [attr.aria-label]="'Editar ' + item.nombre"
+                                        [disabled]="saving() || loading()"
+                                        (click)="edit(item)"
+                                    >
+                                        Editar <illari-icon name="arrow" />
+                                    </button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5" class="admin-empty-cell">
+                                    {{
+                                        loading()
+                                            ? 'Cargando servicios…'
+                                            : failures().services
+                                              ? 'Catálogo no disponible.'
+                                              : 'No se encontraron servicios con estos filtros.'
+                                    }}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <footer class="admin-pagination">
+                <p>Mostrando {{ serviceRange() }} de {{ filteredServices().length }} servicios</p>
+                <div>
+                    <button
+                        type="button"
+                        class="quiet"
+                        aria-label="Página anterior de servicios"
+                        [disabled]="loading() || servicePage() === 0"
+                        (click)="changePage(-1)"
+                    >
+                        <illari-icon name="arrow" class="admin-back-arrow" /> Anterior</button
+                    ><span>Página {{ servicePage() + 1 }} de {{ servicePages() }}</span
+                    ><button
+                        type="button"
+                        class="quiet"
+                        aria-label="Página siguiente de servicios"
+                        [disabled]="loading() || servicePage() + 1 >= servicePages()"
+                        (click)="changePage(1)"
+                    >
+                        Siguiente <illari-icon name="arrow" />
+                    </button>
+                </div>
+            </footer>
+        </section>
+    } @else if (section() === 'cases') {
+        @if (caseEditing()) {
+            <illari-case-editor
+                [clients]="clients()"
+                [lawyers]="lawyers()"
+                [current]="editingCase()"
+                (saved)="caseSaved($event)"
+                (cancel)="caseEditing.set(false)"
+                (busyChange)="childBusy.set($event)"
+                (sessionExpired)="sessionExpired.emit()"
+            />
+        }
+
+        @if (selectedCase(); as item) {
+            <section class="admin-box admin-case-detail">
+                <header class="admin-box-heading">
+                    <div>
+                        <p class="admin-eyebrow">EXPEDIENTE #{{ item.id }}</p>
+                        <h2>{{ item.nombreCaso }}</h2>
+                    </div>
+                    <div class="admin-inline-actions">
+                        <button type="button" class="quiet" [disabled]="working()" (click)="editCase(item)">
+                            Editar expediente <illari-icon name="file" />
+                        </button>
+                        <button type="button" class="quiet" (click)="closeCase()">
+                            Cerrar detalle <illari-icon name="close" />
+                        </button>
+                    </div>
+                </header>
+                <div class="admin-case-body">
+                    <p>{{ item.descripcion || 'Sin descripción registrada.' }}</p>
+                    <dl>
+                        <div>
+                            <dt>Cliente</dt>
+                            <dd>{{ item.clienteNombre }}</dd>
+                        </div>
+                        <div>
+                            <dt>Abogado responsable</dt>
+                            <dd>{{ item.abogadoNombre }}</dd>
+                        </div>
+                        <div>
+                            <dt>Estado</dt>
+                            <dd>{{ item.estado }}</dd>
+                        </div>
+                        <div>
+                            <dt>Próxima audiencia</dt>
+                            <dd>{{ date(item.fechaAudiencia) }}</dd>
+                        </div>
+                    </dl>
+                    <h3>Documentos del expediente</h3>
+                    @if (documentError()) {
+                        <p class="admin-form-error" role="alert">{{ documentError() }}</p>
+                        <button type="button" class="quiet" (click)="openCase(item)">Reintentar documentos</button>
+                    }
+                    @if (documentLoading()) {
+                        <p role="status">Consultando documentos…</p>
+                    } @else {
+                        <ul class="admin-documents">
+                            @for (document of documents(); track document.id) {
+                                <li>
+                                    <illari-icon name="file" /><span
+                                        >{{ document.nombre }}
+                                        <small>{{ document.tipoArchivo.toUpperCase() }}</small></span
+                                    ><button
+                                        type="button"
+                                        class="quiet"
+                                        [attr.aria-label]="'Descargar ' + document.nombre"
+                                        [disabled]="downloading() !== null"
+                                        (click)="download(document)"
+                                    >
+                                        <illari-icon name="download" />{{
+                                            downloading() === document.id ? 'Descargando…' : 'Descargar'
+                                        }}
+                                    </button>
+                                </li>
+                            } @empty {
+                                @if (!documentError()) {
+                                    <li>No hay documentos registrados.</li>
+                                }
+                            }
+                        </ul>
+                    }
+                </div>
+            </section>
+        }
+        <section class="admin-box">
+            <header class="admin-box-heading">
+                <div>
+                    <h2>Registro de expedientes</h2>
+                    <p>
+                        {{
+                            loading() || failures().cases
+                                ? 'Consultando casos'
+                                : cases().length + ' casos en el estudio'
+                        }}
+                    </p>
+                </div>
+                <button type="button" [disabled]="loading() || working() || !!failures().team" (click)="editCase(null)">
+                    <illari-icon name="file" /> Nuevo expediente
+                </button>
+            </header>
+            <div class="admin-toolbar">
+                <div class="admin-search">
+                    <illari-icon name="search" /><input
+                        type="search"
+                        aria-label="Buscar expedientes del estudio"
+                        placeholder="Buscar caso, cliente o abogado…"
+                        [value]="search()"
+                        (input)="searchInput($event)"
+                    />
+                </div>
+                <select aria-label="Estado de expedientes" [value]="status()" (change)="statusInput($event)">
+                    <option value="all">Todos los estados</option>
+                    <option value="active">En seguimiento</option>
+                    <option value="closed">Cerrados</option>
+                </select>
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Expediente</th>
+                            <th>Responsable</th>
+                            <th>Estado</th>
+                            <th>Audiencia</th>
+                            <th><span class="portal-sr-only">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of filteredCases(); track item.id) {
+                            <tr>
+                                <td data-label="Expediente">
+                                    <strong>{{ item.nombreCaso }}</strong
+                                    ><small
+                                        >#{{ item.id }} · {{ item.clienteNombre
+                                        }}{{ item.referencia ? ' · Referencia' : '' }}</small
+                                    >
+                                </td>
+                                <td data-label="Responsable">{{ item.abogadoNombre }}</td>
+                                <td data-label="Estado">
+                                    <span class="admin-badge" [class.closed]="closed(item)">{{ item.estado }}</span>
+                                </td>
+                                <td data-label="Audiencia">{{ date(item.fechaAudiencia) }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="admin-text-button"
+                                        [attr.aria-label]="'Consultar expediente ' + item.id"
+                                        (click)="openCase(item)"
+                                    >
+                                        Consultar <illari-icon name="arrow" />
+                                    </button>
+                                </td>
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td colspan="5" class="admin-empty-cell">
+                                    {{
+                                        loading()
+                                            ? 'Cargando expedientes…'
+                                            : failures().cases
+                                              ? 'Expedientes no disponibles.'
+                                              : 'No hay coincidencias con estos filtros.'
+                                    }}
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    } @else {
+        <illari-people-management
+            [clients]="clients()"
+            [lawyers]="lawyers()"
+            [loading]="loading()"
+            (changed)="load()"
+            (busyChange)="childBusy.set($event)"
+            (sessionExpired)="sessionExpired.emit()"
+        />
+    }
+    <footer class="admin-footer">
+        <span>ILLARI LEGAL / Administración</span
+        ><span><illari-icon name="shield" /> Acceso exclusivo del administrador</span>
+    </footer>
+</main>

@@ -1,0 +1,223 @@
+<div class="people-tabs" role="group" aria-label="Tipo de registro">
+    <button
+        type="button"
+        [attr.aria-pressed]="kind() === 'clientes'"
+        [disabled]="saving()"
+        (click)="select('clientes')"
+    >
+        Clientes <span>{{ clients().length }}</span></button
+    ><button
+        type="button"
+        [attr.aria-pressed]="kind() === 'abogados'"
+        [disabled]="saving()"
+        (click)="select('abogados')"
+    >
+        Abogados <span>{{ lawyers().length }}</span>
+    </button>
+</div>
+@if (message()) {
+    <p class="admin-alert success" role="status"><illari-icon name="check" />{{ message() }}</p>
+}
+@if (editing()) {
+    <section class="admin-box admin-editor" aria-labelledby="person-editor-title">
+        <header class="admin-box-heading">
+            <div>
+                <p class="admin-eyebrow">PERSONAS Y ACCESOS</p>
+                <h2 id="person-editor-title">
+                    {{ editingId() === null ? 'Registrar ' : 'Editar '
+                    }}{{ kind() === 'clientes' ? 'cliente' : 'abogado' }}
+                </h2>
+                <p>
+                    {{
+                        editingId() === null
+                            ? 'El registro incluye una cuenta personal para acceder al portal.'
+                            : 'Los datos se sincronizan con la cuenta vinculada al registro.'
+                    }}
+                </p>
+            </div>
+            <button type="button" class="quiet" [disabled]="saving()" (click)="cancel()">Cancelar</button>
+        </header>
+        <form [formGroup]="form" (ngSubmit)="save()">
+            <fieldset [disabled]="saving()">
+                <div class="admin-form-grid">
+                    <div class="admin-field">
+                        <label for="person-name">Nombre completo</label
+                        ><input
+                            id="person-name"
+                            formControlName="nombre"
+                            required
+                            maxlength="150"
+                            autocomplete="off"
+                            placeholder="Nombres y apellidos"
+                        />
+                    </div>
+                    <div class="admin-field">
+                        <label for="person-email">Correo electrónico</label
+                        ><input
+                            id="person-email"
+                            formControlName="email"
+                            type="email"
+                            required
+                            maxlength="200"
+                            autocomplete="off"
+                            placeholder="nombre@correo.com"
+                        />
+                    </div>
+                    <div class="admin-field">
+                        <label for="person-phone">Teléfono (opcional)</label
+                        ><input
+                            id="person-phone"
+                            formControlName="telefono"
+                            type="tel"
+                            maxlength="30"
+                            placeholder="Número de contacto"
+                        />
+                    </div>
+                    @if (kind() === 'abogados') {
+                        <div class="admin-field">
+                            <label for="person-specialty">Especialidad</label
+                            ><input
+                                id="person-specialty"
+                                formControlName="especialidad"
+                                required
+                                maxlength="150"
+                                placeholder="Ej.: Derecho civil"
+                            />
+                        </div>
+                    }
+                    <div class="admin-field wide">
+                        <label for="person-address">Dirección de contacto (opcional)</label
+                        ><input
+                            id="person-address"
+                            formControlName="direccion"
+                            maxlength="250"
+                            placeholder="Ciudad o dirección de contacto"
+                        />
+                    </div>
+                    @if (editingId() === null) {
+                        <div class="admin-field">
+                            <label for="person-username">Usuario de acceso</label
+                            ><input
+                                id="person-username"
+                                formControlName="usuario"
+                                required
+                                maxlength="50"
+                                autocomplete="off"
+                                placeholder="Ej.: camila.cliente"
+                            /><span>De 3 a 50 letras, números, puntos o guiones.</span>
+                        </div>
+                        <div class="admin-field">
+                            <label for="person-password">Contraseña inicial</label>
+                            <div class="people-password">
+                                <input
+                                    id="person-password"
+                                    formControlName="claveInicial"
+                                    [type]="reveal() ? 'text' : 'password'"
+                                    required
+                                    minlength="12"
+                                    maxlength="128"
+                                    autocomplete="new-password"
+                                /><button
+                                    type="button"
+                                    class="quiet"
+                                    [attr.aria-label]="
+                                        reveal() ? 'Ocultar contraseña inicial' : 'Mostrar contraseña inicial'
+                                    "
+                                    (click)="reveal.set(!reveal())"
+                                >
+                                    {{ reveal() ? 'Ocultar' : 'Ver' }}
+                                </button>
+                            </div>
+                            <div class="people-password-help">
+                                <span>Al menos 12 caracteres.</span
+                                ><button type="button" class="admin-text-button" (click)="generate()">
+                                    Generar contraseña
+                                </button>
+                            </div>
+                        </div>
+                        <p class="people-access-note wide">
+                            <illari-icon name="shield" />Entrega estos datos directamente al titular. La cuenta es
+                            personal y solicitará una contraseña nueva en el primer ingreso.
+                        </p>
+                    }
+                </div>
+            </fieldset>
+            @if (form.touched && form.invalid) {
+                <p class="admin-form-error" role="alert">
+                    Revisa los campos obligatorios, el correo y los datos de acceso.
+                </p>
+            }
+            @if (error()) {
+                <p class="admin-form-error" role="alert">{{ error() }}</p>
+            }
+            <div class="admin-form-actions">
+                <button type="submit" [disabled]="saving() || form.invalid">
+                    {{
+                        saving() ? 'Guardando…' : editingId() === null ? 'Crear registro y acceso' : 'Guardar datos'
+                    }}</button
+                ><button type="button" class="quiet" [disabled]="saving()" (click)="cancel()">Cancelar</button>
+            </div>
+        </form>
+    </section>
+}
+<section class="admin-box">
+    <header class="admin-box-heading">
+        <div>
+            <p class="admin-eyebrow">DIRECTORIO DEL ESTUDIO</p>
+            <h2>{{ kind() === 'clientes' ? 'Clientes registrados' : 'Equipo de abogados' }}</h2>
+            <p>Consulta y mantén actualizados los datos de contacto.</p>
+        </div>
+        <button type="button" [disabled]="loading() || saving()" (click)="edit(null)">
+            <illari-icon name="file" />{{ kind() === 'clientes' ? 'Registrar cliente' : 'Registrar abogado' }}
+        </button>
+    </header>
+    <div class="admin-toolbar">
+        <div class="admin-search">
+            <illari-icon name="search" /><input
+                type="search"
+                aria-label="Buscar personas registradas"
+                placeholder="Buscar por nombre o correo…"
+                [value]="search()"
+                (input)="searchInput($event)"
+            />
+        </div>
+    </div>
+    <div class="admin-team-grid">
+        @for (person of visible(); track person.id) {
+            <article class="admin-person">
+                <span class="admin-person-avatar">{{ initials(person.nombre) }}</span>
+                <h3>{{ person.nombre }}</h3>
+                <p>{{ specialty(person) }}</p>
+                <dl>
+                    <div>
+                        <dt>Correo</dt>
+                        <dd>{{ person.email }}</dd>
+                    </div>
+                    <div>
+                        <dt>Teléfono</dt>
+                        <dd>{{ person.telefono || 'Sin registrar' }}</dd>
+                    </div>
+                    <div>
+                        <dt>Dirección</dt>
+                        <dd>{{ person.direccion || 'Sin registrar' }}</dd>
+                    </div>
+                </dl>
+                <button
+                    type="button"
+                    class="admin-text-button person-edit"
+                    [attr.aria-label]="'Editar datos de ' + person.nombre"
+                    [disabled]="saving()"
+                    (click)="edit(person)"
+                >
+                    Editar datos <illari-icon name="arrow" />
+                </button>
+            </article>
+        } @empty {
+            <div class="admin-empty">
+                <illari-icon name="search" />
+                <h3>{{ loading() ? 'Consultando registros…' : 'No encontramos registros' }}</h3>
+                <p>Busca por otro nombre o incorpora una persona al directorio.</p>
+            </div>
+        }
+    </div>
+</section>

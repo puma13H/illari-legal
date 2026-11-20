@@ -1,0 +1,96 @@
+<section class="admin-box admin-editor" aria-labelledby="case-editor-title">
+    <header class="admin-box-heading">
+        <div>
+            <p class="admin-eyebrow">GESTIÓN DE EXPEDIENTES</p>
+            <h2 id="case-editor-title">{{ current() ? 'Editar expediente #' + current()!.id : 'Nuevo expediente' }}</h2>
+            <p>Asigna a las personas responsables y registra la información inicial.</p>
+        </div>
+        <button type="button" class="quiet" [disabled]="saving()" (click)="cancel.emit()">Cancelar</button>
+    </header>
+    @if (current()?.pedidoId) { <p class="admin-alert success">Vinculado al pedido #{{ current()!.pedidoId }}. El cliente corresponde a la compra confirmada.</p> }
+    <form [formGroup]="form" (ngSubmit)="save()">
+        <fieldset [disabled]="saving()">
+            <div class="admin-form-grid">
+                <div class="admin-field wide">
+                    <label for="case-name">Asunto del expedient</label
+                    ><input
+                        id="case-name"
+                        formControlName="nombreCaso"
+                        required
+                        maxlength="180"
+                        placeholder="Ej.: Revisión de contrato de arrendamiento"
+                    />
+                </div>
+                <div class="admin-field">
+                    <label for="case-client">Cliente</label
+                    ><select id="case-client" formControlName="clienteId" required>
+                        <option value="">Selecciona un cliente</option>
+                        @for (person of clients(); track person.id) {
+                            <option [value]="person.id">{{ person.nombre }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="admin-field">
+                    <label for="case-lawyer">Abogado responsable</label
+                    ><select id="case-lawyer" formControlName="abogadoId" required>
+                        <option value="">Selecciona un profesional</option>
+                        @for (person of lawyers(); track person.id) {
+                            <option [value]="person.id">{{ person.nombre }} · {{ person.especialidad }}</option>
+                        }
+                    </select>
+                </div>
+                <div class="admin-field">
+                    <label for="case-opening">Fecha de apertura</label
+                    ><input id="case-opening" type="date" formControlName="fechaApertura" [max]="today()" required />
+                </div>
+                <div class="admin-field">
+                    <label for="admin-case-status">Estado actual</label
+                    ><select id="admin-case-status" formControlName="estado">
+                        <option>Iniciado</option>
+                        <option>En trámite</option>
+                        <option>En revisión</option>
+                        <option>Cerrado</option>
+                    </select>
+                </div>
+                <div class="admin-field">
+                    <label for="admin-case-hearing">Próxima audiencia (opcional)</label
+                    ><input
+                        id="admin-case-hearing"
+                        type="date"
+                        formControlName="fechaAudiencia"
+                        [min]="form.controls.fechaApertura.value"
+                    />
+                </div>
+                <div class="admin-field">
+                    <label for="case-fee">Honorarios registrados (S/)</label
+                    ><input id="case-fee" type="number" min="0" step="0.01" formControlName="tarifa" required /><span
+                        >Este dato informativo no genera un cobro automático.</span
+                    >
+                </div>
+                <div class="admin-field wide">
+                    <label for="case-description">Descripción y alcance</label
+                    ><textarea
+                        id="case-description"
+                        formControlName="descripcion"
+                        maxlength="2000"
+                        rows="4"
+                        placeholder="Describe el asunto y el trabajo previsto para este expediente."
+                    ></textarea>
+                </div>
+            </div>
+        </fieldset>
+        @if (form.touched && form.invalid) {
+            <p class="admin-form-error" role="alert">
+                Completa el asunto, las personas asignadas y las fechas. El importe admite hasta dos decimales.
+            </p>
+        }
+        @if (error()) {
+            <p class="admin-form-error" role="alert">{{ error() }}</p>
+        }
+        <div class="admin-form-actions">
+            <button type="submit" [disabled]="saving() || form.invalid">
+                {{ saving() ? 'Guardando…' : 'Guardar expediente' }}</button
+            ><button type="button" class="quiet" [disabled]="saving()" (click)="cancel.emit()">Cancelar</button>
+        </div>
+    </form>
+</section>
